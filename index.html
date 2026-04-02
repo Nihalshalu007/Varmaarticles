@@ -806,12 +806,9 @@
           <thead>
             <tr>
               <th>Article</th>
-              <th>Client &amp; Start Date</th>
-              <th>End Date</th>
+              <th colspan="4">Client · Start Date · End Date · Status · Action</th>
               <th>Partner</th>
               <th>Role</th>
-              <th>Status</th>
-              <th>Action</th>
             </tr>
           </thead>
           <tbody id="tableBody"></tbody>
@@ -1241,48 +1238,54 @@ function renderTable(rows) {
     byArticle[key].push(r);
   });
 
+  const today = new Date(); today.setHours(0,0,0,0);
+
   tbody.innerHTML = articleOrder.map((artKey, i) => {
     const group = byArticle[artKey];
     const first = group[0];
     const multi = group.length > 1;
-    const effStatus = computeEffectiveStatus(first);
 
-    // Client blocks — start date only (end date gets its own column)
-    const clientBlocks = group.map(r => `
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;${multi ? 'padding:5px 0;border-bottom:1px dashed rgba(212,220,245,0.5);' : ''}">
-        <span class="client-badge" style="flex-shrink:0">🏢 ${r.client || '—'}</span>
-        ${r.from ? `<span class="date-badge" style="font-size:11px;padding:2px 8px"><span class="date-from">📅 ${r.from}</span></span>` : '<span style="color:#cbd5e1;font-size:11px">No start date</span>'}
-        <button class="edit-date-btn" style="opacity:0.7" onclick="openDateModal(${allData.indexOf(r)})" title="Edit end date">✏️</button>
-      </div>
-    `).join('');
+    // Build one sub-row per allocation (client + dates + status + action)
+    const allocationRows = group.map((r, ri) => {
+      const idx = allData.indexOf(r);
+      const effStatus = computeEffectiveStatus(r);
+      const isCompleted = effStatus.toLowerCase().includes('complet');
 
-    // End date cell — one per group (first allocation)
-    const endDateCell = (() => {
-      const r = first;
-      const today = new Date(); today.setHours(0,0,0,0);
-      if (!r.to && !r.endDate) {
-        return `<span style="color:#cbd5e1;font-size:12px">—</span>`;
+      // End date badge
+      let endDateBadge = `<span style="color:#cbd5e1;font-size:12px">—</span>`;
+      if (r.to || r.endDate) {
+        const endISO = r.endDate || '';
+        let isPast = false;
+        if (endISO) { const d = new Date(endISO + 'T00:00:00'); isPast = !isNaN(d) && d <= today; }
+        const label = r.to || r.endDate || '';
+        endDateBadge = `<span class="date-badge" style="font-size:11px;padding:3px 10px;${isPast ? 'background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.3)' : ''}">
+          <span style="${isPast ? 'color:#059669' : 'color:#7c3aed'}">🏁 ${label}</span>
+        </span>`;
       }
-      const endISO = r.endDate || '';
-      let isPast = false;
-      if (endISO) {
-        const d = new Date(endISO + 'T00:00:00');
-        isPast = !isNaN(d) && d <= today;
-      }
-      const label = r.to || r.endDate || '';
-      return `<span class="date-badge" style="font-size:11px;padding:3px 10px;${isPast ? 'background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.3)' : ''}">
-        <span style="${isPast ? 'color:#059669' : 'color:#7c3aed'}">🏁 ${label}</span>
-      </span>`;
-    })();
 
-    // Mark Completed button
-    const isAlreadyCompleted = effStatus.toLowerCase().includes('complet');
-    const actionBtn = isAlreadyCompleted
-      ? `<span style="font-size:11px;color:#059669;font-weight:600;display:flex;align-items:center;gap:4px">✅ Done</span>`
-      : `<button class="complete-btn" onclick="markCompleted(${allData.indexOf(first)})" title="Mark as Work Completed">✔ Complete</button>`;
+      // Complete button per allocation
+      const actionBtn = isCompleted
+        ? `<span style="font-size:11px;color:#059669;font-weight:600;display:flex;align-items:center;gap:4px">✅ Done</span>`
+        : `<button class="complete-btn" onclick="markCompleted(${idx})" title="Mark as Work Completed">✔ Complete</button>`;
+
+      const borderStyle = multi && ri < group.length - 1
+        ? 'border-bottom:1px dashed rgba(212,220,245,0.7);padding-bottom:8px;margin-bottom:8px'
+        : '';
+
+      return `<div style="${borderStyle};display:grid;grid-template-columns:1fr auto auto auto;align-items:center;gap:10px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span class="client-badge" style="flex-shrink:0">🏢 ${r.client || '—'}</span>
+          ${r.from ? `<span class="date-badge" style="font-size:11px;padding:2px 8px"><span class="date-from">📅 ${r.from}</span></span>` : '<span style="color:#cbd5e1;font-size:11px">No start date</span>'}
+          <button class="edit-date-btn" style="opacity:0.7" onclick="openDateModal(${idx})" title="Edit end date">✏️</button>
+        </div>
+        <div style="min-width:90px">${endDateBadge}</div>
+        <div style="min-width:80px">${statusBadge(effStatus)}</div>
+        <div>${actionBtn}</div>
+      </div>`;
+    }).join('');
 
     return `
-      <tr style="animation-delay:${Math.min(i*0.03,0.5)}s;vertical-align:top${isAlreadyCompleted ? ';opacity:0.8' : ''}">
+      <tr style="animation-delay:${Math.min(i*0.03,0.5)}s;vertical-align:top">
         <td>
           <div class="article-name">
             <div class="avatar" style="${avatarStyle(first.article)}">${initials(first.article)}</div>
@@ -1292,16 +1295,13 @@ function renderTable(rows) {
             </div>
           </div>
         </td>
-        <td>
-          <div style="display:flex;flex-direction:column;gap:2px;">
-            ${clientBlocks}
+        <td colspan="4">
+          <div style="display:flex;flex-direction:column;gap:0">
+            ${allocationRows}
           </div>
         </td>
-        <td>${endDateCell}</td>
         <td>${first.partner ? `<span class="partner-chip">⚖ ${first.partner}</span>` : '<span style="color:#cbd5e1">—</span>'}</td>
         <td>${roleTag(first.role) || '<span style="color:#cbd5e1">—</span>'}</td>
-        <td>${statusBadge(effStatus)}</td>
-        <td>${actionBtn}</td>
       </tr>
     `;
   }).join('');
