@@ -3,817 +3,1564 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Articleship Allocation - Enterprise</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<title>Varma & Co — Article Allocation Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Lora:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+
 <style>
   :root {
-    --bg: #0f172a;
-    --surface: #1e293b;
-    --surface2: #263348;
-    --border: rgba(255,255,255,0.09);
-    --primary: #6366f1; --primary-hover: #4f46e5; --primary-soft: rgba(99,102,241,0.12);
-    --danger: #ef4444; --danger-hover: #dc2626;
-    --green: #10b981; --green-soft: rgba(16,185,129,0.12);
-    --text: #f1f5f9; --text-muted: #94a3b8; --text-dim: #64748b;
-    --radius: 12px; --radius-sm: 8px;
+    --bg:        #f0f4ff;
+    --bg2:       #e6ecff;
+    --surface:   #ffffff;
+    --surface2:  #f7f9ff;
+    --border:    #d4dcf5;
+    --border2:   #c0cdf0;
+
+    --indigo:    #4f46e5;
+    --indigo-lt: #6d63f5;
+    --indigo-dim:#3730a3;
+    --violet:    #7c3aed;
+    --violet-lt: #9d6df5;
+    --cyan:      #0ea5e9;
+    --cyan-lt:   #38bdf8;
+    --emerald:   #059669;
+    --amber:     #d97706;
+    --rose:      #e11d48;
+    --pink:      #db2777;
+
+    --text-hero:    #1e1b4b;
+    --text-primary: #1e293b;
+    --text-secondary:#475569;
+    --text-muted:   #94a3b8;
+    --text-faint:   #c8d0e7;
+
+    --gold:      #f59e0b;
+    --gold-lt:   #fbbf24;
+    --gold-dim:  #d97706;
+
+    --success:   #10b981;
+    --warning:   #f59e0b;
+    --danger:    #ef4444;
+    --info:      #3b82f6;
+
+    --font-display: 'Lora', Georgia, serif;
+    --font-body:    'Sora', system-ui, sans-serif;
+
+    --r-sm:  6px;
+    --r-md:  10px;
+    --r-lg:  16px;
+    --r-xl:  22px;
+    --r-2xl: 30px;
+
+    --shadow-sm: 0 1px 3px rgba(79,70,229,0.08), 0 1px 2px rgba(79,70,229,0.06);
+    --shadow-md: 0 4px 16px rgba(79,70,229,0.10), 0 2px 6px rgba(79,70,229,0.08);
+    --shadow-lg: 0 12px 40px rgba(79,70,229,0.14), 0 4px 12px rgba(79,70,229,0.08);
+    --shadow-xl: 0 20px 60px rgba(79,70,229,0.18), 0 8px 20px rgba(79,70,229,0.10);
   }
-  *{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',sans-serif;}
-  body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:32px 16px;}
 
-  /* ── Shared ── */
-  @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-  .hidden{display:none!important;}
-  .empty{text-align:center;padding:32px 16px;color:var(--text-dim);font-size:14px;}
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-  /* ── Labels & inputs ── */
-  label.lbl{display:block;margin-bottom:5px;color:var(--text-muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;}
-  .input-group{margin-bottom:14px;}
-  input,select{width:100%;padding:10px 13px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:14px;outline:none;transition:border-color .18s,box-shadow .18s;}
-  input:focus,select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(99,102,241,.18);}
-  input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(1);cursor:pointer;}
-  select option{background:var(--surface);}
+  body {
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
 
-  /* ── Buttons ── */
-  button{background:var(--primary);color:#fff;padding:10px 20px;border-radius:var(--radius-sm);border:none;font-size:13.5px;font-weight:500;cursor:pointer;transition:background .16s,transform .12s;display:inline-flex;align-items:center;justify-content:center;gap:6px;width:auto;}
-  button:hover{background:var(--primary-hover);transform:translateY(-1px);}
-  button:active{transform:translateY(0);}
-  button:disabled{opacity:.5;cursor:not-allowed;transform:none;}
-  button.danger{background:var(--danger);padding:6px 13px;font-size:12px;border-radius:6px;}
-  button.danger:hover{background:var(--danger-hover);}
+  /* ── BACKGROUND MESH ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse 70% 50% at 0% 0%, rgba(79,70,229,0.12) 0%, transparent 55%),
+      radial-gradient(ellipse 60% 45% at 100% 100%, rgba(124,58,237,0.10) 0%, transparent 55%),
+      radial-gradient(ellipse 50% 40% at 50% 50%, rgba(14,165,233,0.06) 0%, transparent 60%);
+  }
 
-  /* ── Login card ── */
-  .login-wrap{width:100%;max-width:420px;animation:fadeIn .35s ease-out;}
-  .login-header{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius) var(--radius) 0 0;padding:28px 30px 20px;text-align:center;}
-  .login-icon{width:46px;height:46px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:11px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:10px;box-shadow:0 6px 20px rgba(99,102,241,.35);}
-  .login-header h2{font-size:19px;margin:0 0 2px;}
-  .login-header p{color:var(--text-muted);font-size:13px;}
-  .login-tabs{display:flex;background:var(--surface);border-left:1px solid var(--border);border-right:1px solid var(--border);padding:0 12px;}
-  .login-tab{flex:1;padding:11px 8px;border-bottom:2px solid transparent;font-size:13px;font-weight:600;background:transparent;color:var(--text-dim);border-radius:0;border-top:none;border-left:none;border-right:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transform:none;}
-  .login-tab:hover{color:var(--text-muted);transform:none;}
-  .login-tab.active{color:var(--primary);border-bottom-color:var(--primary);}
-  .login-tab.active:hover{transform:none;}
-  .login-body{background:var(--surface);border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius) var(--radius);padding:24px 30px 28px;}
-  .toggle-text{text-align:center;margin-top:14px;font-size:13px;color:var(--text-muted);}
-  .toggle-text a{color:var(--primary);cursor:pointer;font-weight:500;}
+  /* ── HEADER ── */
+  header {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 66px;
+    box-shadow: 0 2px 12px rgba(79,70,229,0.08);
+  }
 
-  /* ── App shell ── */
-  .app-shell{width:100%;max-width:960px;animation:fadeIn .3s ease-out;}
-  .app-topbar{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:20px;}
-  .app-topbar h2{font-size:17px;font-weight:600;margin:0;}
-  .app-topbar p{color:var(--text-muted);font-size:12px;margin:2px 0 0;}
-  .btn-logout{background:rgba(255,255,255,.07);color:var(--text-muted);font-size:13px;padding:8px 16px;}
-  .btn-logout:hover{background:rgba(255,255,255,.12);transform:none;}
+  .logo { display: flex; align-items: center; gap: 14px; }
 
-  /* ── Manager nav ── */
-  .mgr-nav{display:flex;gap:4px;margin-bottom:20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:6px;}
-  .mgr-tab{flex:1;padding:10px 8px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;background:transparent;color:var(--text-muted);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;width:auto;transform:none;transition:background .15s,color .15s;}
-  .mgr-tab:hover{background:rgba(255,255,255,.05);color:var(--text);transform:none;}
-  .mgr-tab.active{background:var(--primary-soft);color:#a5b4fc;}
-  .mgr-tab.active:hover{transform:none;}
+  .logo-mark {
+    width: 40px; height: 40px;
+    background: linear-gradient(135deg, var(--indigo), var(--violet));
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display);
+    font-weight: 700; font-size: 18px; color: #fff;
+    box-shadow: 0 4px 12px rgba(79,70,229,0.3);
+    letter-spacing: -0.5px;
+  }
+  .logo-text {
+    font-family: var(--font-display);
+    font-size: 17px; font-weight: 700;
+    color: var(--text-hero); letter-spacing: -0.01em;
+  }
+  .logo-sub {
+    font-size: 10.5px; font-weight: 500;
+    color: var(--text-muted); letter-spacing: 0.09em; text-transform: uppercase;
+    margin-top: 1px;
+  }
 
-  /* ── Panels ── */
-  .panel-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:16px;}
-  .panel-section h3{font-size:14px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:16px;display:flex;align-items:center;gap:7px;}
-  .panel-section h3::before{content:'';display:inline-block;width:3px;height:14px;background:var(--primary);border-radius:2px;}
-  .form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;align-items:end;}
-  .form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;align-items:end;}
+  .header-right { display: flex; align-items: center; gap: 12px; }
 
-  /* ── Item rows ── */
-  .irow{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface2);margin-bottom:7px;transition:border-color .18s;}
-  .irow:hover{border-color:rgba(99,102,241,.3);}
-  .irow-info{display:flex;flex-direction:column;gap:3px;}
-  .irow-name{font-size:14px;font-weight:500;}
-  .irow-sub{font-size:12px;color:var(--text-muted);display:flex;gap:5px;flex-wrap:wrap;margin-top:2px;}
-  .irow-actions{display:flex;gap:7px;flex-shrink:0;}
-  .pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:500;}
-  .pill-p{background:var(--primary-soft);color:#a5b4fc;}
-  .pill-g{background:rgba(255,255,255,.06);color:var(--text-muted);}
-  .btn-edit{background:var(--primary-soft);color:#a5b4fc;border:1px solid rgba(99,102,241,.2);padding:6px 13px;font-size:12px;border-radius:6px;cursor:pointer;width:auto;transform:none;}
-  .btn-edit:hover{background:rgba(99,102,241,.22);transform:none;}
+  .live-badge {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(16,185,129,0.10);
+    border: 1px solid rgba(16,185,129,0.25);
+    border-radius: 20px; padding: 5px 14px;
+    font-size: 12px; font-weight: 600; color: var(--success);
+    letter-spacing: 0.02em;
+  }
+  .live-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--success); animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.85)} }
 
-  /* ── Alloc form ── */
-  .alloc-step{counter-increment:step;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px 18px;margin-bottom:12px;position:relative;}
-  .step-label{font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
-  .step-num{width:20px;height:20px;border-radius:50%;background:var(--primary-soft);color:#a5b4fc;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .dev-badge {
+    font-size: 11px; font-weight: 500;
+    color: var(--text-muted);
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 20px; padding: 4px 12px;
+    letter-spacing: 0.01em;
+  }
+  .dev-badge span { color: var(--indigo); font-weight: 700; }
 
-  /* ── Article picker ── */
-  .picker{display:flex;flex-direction:column;gap:5px;max-height:280px;overflow-y:auto;margin-top:8px;}
-  .pick-item{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);cursor:pointer;transition:border-color .14s,background .14s;user-select:none;}
-  .pick-item:hover{border-color:rgba(99,102,241,.4);background:rgba(99,102,241,.07);}
-  .pick-item.sel{border-color:var(--primary);background:var(--primary-soft);}
-  .pick-item.busy{border-color:rgba(239,68,68,.25);background:rgba(239,68,68,.05);cursor:default;opacity:.75;}
-  .pick-item.busy:hover{border-color:rgba(239,68,68,.25);background:rgba(239,68,68,.05);}
-  .pick-left{display:flex;flex-direction:column;gap:2px;}
-  .pick-name{font-size:14px;font-weight:500;}
-  .pick-sub{font-size:12px;color:var(--text-muted);}
-  .pick-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;white-space:nowrap;}
-  .free{background:var(--green-soft);color:#34d399;}
-  .busy-badge{background:rgba(239,68,68,.12);color:#f87171;}
-  .sel-summary{margin-top:12px;padding:12px 15px;border-radius:var(--radius-sm);background:var(--primary-soft);border:1px solid rgba(99,102,241,.25);font-size:13px;color:#a5b4fc;}
-  .sel-summary span{font-weight:600;}
-  .picker-hint{font-size:13px;color:var(--text-dim);padding:14px 0 2px;display:flex;align-items:center;gap:7px;}
+  /* ── LAYOUT ── */
+  main {
+    position: relative; z-index: 1;
+    max-width: 1380px; margin: 0 auto;
+    padding: 2rem 2rem 3rem;
+  }
 
-  /* ── Alloc table ── */
-  .alloc-table-wrap{border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--border);}
-  table{width:100%;border-collapse:collapse;background:var(--surface2);}
-  th,td{padding:12px 16px;text-align:left;border-bottom:1px solid var(--border);font-size:13.5px;}
-  th{background:var(--surface);font-weight:600;color:var(--text-dim);text-transform:uppercase;font-size:11px;letter-spacing:.05em;}
-  tr:last-child td{border-bottom:none;}
-  tr:hover td{background:rgba(255,255,255,.015);}
-  .date-badge{background:var(--primary-soft);color:#a5b4fc;padding:3px 11px;border-radius:20px;font-size:12px;font-weight:500;white-space:nowrap;}
-  .status-completed{display:inline-flex;align-items:center;gap:5px;background:var(--green-soft);color:#34d399;padding:4px 11px;border-radius:20px;font-size:12px;font-weight:600;white-space:nowrap;}
-  .status-active{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.06);color:var(--text-muted);padding:4px 11px;border-radius:20px;font-size:12px;font-weight:500;white-space:nowrap;}
-  button.btn-complete{background:var(--green-soft);color:#34d399;border:1px solid rgba(16,185,129,.25);padding:6px 13px;font-size:12px;border-radius:6px;cursor:pointer;width:auto;transform:none;}
-  button.btn-complete:hover{background:rgba(16,185,129,.22);transform:none;}
+  /* ── PAGE HERO ── */
+  .page-hero {
+    margin-bottom: 2rem;
+    display: flex; align-items: flex-end; justify-content: space-between;
+    flex-wrap: wrap; gap: 12px;
+  }
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: 28px; font-weight: 700;
+    color: var(--text-hero); line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+  .hero-title span {
+    background: linear-gradient(90deg, var(--indigo), var(--violet));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero-sub {
+    font-size: 13px; color: var(--text-muted); margin-top: 4px; font-weight: 400;
+  }
 
-  /* ── Article user view ── */
-  .alloc-card{background:var(--surface2);padding:14px 18px;border-radius:var(--radius-sm);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border);}
+  /* ── STATS ROW ── */
+  .stats-row {
+    display: flex; gap: 14px;
+    margin-bottom: 1.75rem;
+    flex-wrap: wrap;
+  }
 
-  /* ── Modal ── */
-  .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:999;padding:20px;}
-  .modal-bg.open{display:flex;}
-  .modal-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:26px;width:100%;max-width:400px;box-shadow:0 24px 64px rgba(0,0,0,.5);animation:fadeIn .18s ease-out;}
-  .modal-box h3{margin-bottom:16px;font-size:15px;}
-  .modal-acts{display:flex;gap:10px;margin-top:18px;justify-content:flex-end;}
-  .btn-cancel{background:rgba(255,255,255,.07);color:var(--text-muted);}
-  .btn-cancel:hover{background:rgba(255,255,255,.12);transform:none;}
+  .stat-card {
+    flex: 0 0 auto;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-xl);
+    padding: 1rem 1.4rem;
+    position: relative; overflow: hidden;
+    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s;
+    box-shadow: var(--shadow-sm);
+    animation: slideUp 0.4s ease both;
+    display: flex; align-items: center; gap: 14px;
+    min-width: 200px;
+  }
+  .stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--border2);
+  }
+  .stat-card::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(135deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 100%);
+  }
+  .stat-icon {
+    width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+  .stat-icon.indigo { background: linear-gradient(135deg, #ede9fe, #c7d2fe); }
+  .stat-icon.cyan   { background: linear-gradient(135deg, #e0f2fe, #bae6fd); }
+  .stat-info {}
+  .stat-label {
+    font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.09em; color: var(--text-muted); margin-bottom: 3px;
+  }
+  .stat-value {
+    font-family: var(--font-display);
+    font-size: 28px; font-weight: 700;
+    color: var(--text-hero); line-height: 1;
+  }
+  .stat-value.indigo { color: var(--indigo); }
+  .stat-value.cyan   { color: var(--cyan); }
+  .stat-sub { font-size: 11px; color: var(--text-muted); margin-top: 3px; font-weight: 400; }
 
-  /* ── Divider ── */
-  .panel-divider{height:1px;background:var(--border);margin:18px 0;}
+  /* ── SEARCH SECTION ── */
+  .search-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-2xl);
+    padding: 1.4rem 1.75rem;
+    margin-bottom: 1.75rem;
+    box-shadow: var(--shadow-sm);
+    animation: slideUp 0.4s ease 0.05s both;
+  }
 
-  /* Legacy compatibility */
-  .glass{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;width:100%;max-width:420px;}
-  .card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:18px;margin-bottom:14px;}
-  .card h3{font-size:13px;font-weight:600;margin-bottom:14px;color:var(--text-muted);}
-  .header-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border);}
-  .gauto{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;align-items:end;}
-  .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
-  .grp-hdr td{background:rgba(99,102,241,.06)!important;font-weight:600;font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;padding:8px 16px!important;}
+  .search-top-row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+  .search-label {
+    font-size: 12px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--text-muted);
+  }
+
+  .search-tabs { display: flex; gap: 6px; }
+  .tab-btn {
+    background: var(--bg2);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-md);
+    padding: 7px 18px;
+    font-family: var(--font-body); font-size: 13px; font-weight: 600;
+    color: var(--text-secondary); cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.01em;
+  }
+  .tab-btn.active {
+    background: linear-gradient(135deg, var(--indigo), var(--violet));
+    border-color: transparent;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(79,70,229,0.3);
+  }
+  .tab-btn:hover:not(.active) {
+    border-color: var(--indigo);
+    color: var(--indigo);
+    background: rgba(79,70,229,0.06);
+  }
+
+  .search-inputs { display: flex; gap: 10px; align-items: center; }
+
+  .search-input-wrap { position: relative; flex: 1; }
+  .search-icon {
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    color: var(--text-muted); font-size: 15px; pointer-events: none;
+  }
+  .search-input {
+    width: 100%;
+    background: var(--bg2);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 11px 14px 11px 42px;
+    font-family: var(--font-body); font-size: 14px; font-weight: 400;
+    color: var(--text-primary); outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  }
+  .search-input::placeholder { color: var(--text-muted); }
+  .search-input:focus {
+    border-color: var(--indigo);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(79,70,229,0.12);
+  }
+
+  .clear-btn {
+    background: var(--bg2);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 11px 20px;
+    font-family: var(--font-body); font-size: 13px; font-weight: 600;
+    color: var(--text-secondary); cursor: pointer; white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .clear-btn:hover {
+    background: rgba(239,68,68,0.08);
+    border-color: rgba(239,68,68,0.35);
+    color: var(--danger);
+  }
+
+  /* ── TABLE SECTION ── */
+  .table-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-2xl);
+    overflow: hidden;
+    margin-bottom: 1.75rem;
+    box-shadow: var(--shadow-md);
+    animation: slideUp 0.45s ease 0.1s both;
+  }
+
+  .table-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.2rem 1.75rem;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(90deg, rgba(79,70,229,0.04), rgba(124,58,237,0.03));
+  }
+  .table-title {
+    font-family: var(--font-display);
+    font-size: 17px; font-weight: 700;
+    color: var(--text-hero); letter-spacing: -0.01em;
+  }
+  .table-header-right { display: flex; align-items: center; gap: 10px; }
+  .result-count {
+    font-size: 12px; font-weight: 600; color: var(--indigo);
+    background: rgba(79,70,229,0.09);
+    border: 1px solid rgba(79,70,229,0.2);
+    border-radius: 20px; padding: 4px 13px;
+  }
+
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    padding: 11px 20px; text-align: left;
+    font-size: 10.5px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--text-muted);
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+  thead th:first-child { padding-left: 24px; }
+
+  tbody tr {
+    border-bottom: 1px solid rgba(212,220,245,0.5);
+    transition: background 0.15s;
+    animation: fadeIn 0.3s ease both;
+  }
+  tbody tr:hover { background: rgba(79,70,229,0.03); }
+  tbody tr:last-child { border-bottom: none; }
+  td { padding: 13px 20px; font-size: 13.5px; vertical-align: middle; }
+  td:first-child { padding-left: 24px; }
+
+  .article-name {
+    font-weight: 600; color: var(--text-primary);
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13.5px;
+  }
+  .avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11.5px; font-weight: 700; flex-shrink: 0;
+    letter-spacing: 0.02em;
+  }
+
+  .client-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: rgba(14,165,233,0.09);
+    border: 1px solid rgba(14,165,233,0.22);
+    border-radius: 6px; padding: 4px 10px;
+    font-size: 12.5px; color: #0284c7; font-weight: 500;
+  }
+
+  .role-tag {
+    display: inline-block; font-size: 10.5px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    border-radius: 5px; padding: 3px 9px;
+  }
+
+  .status-dot {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12.5px; font-weight: 500;
+  }
+  .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+  .partner-chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 12px; color: var(--gold-dim);
+    background: rgba(245,158,11,0.09);
+    border: 1px solid rgba(245,158,11,0.22);
+    border-radius: 5px; padding: 3px 9px; font-weight: 500;
+  }
+
+  /* ── CARDS GRID ── */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+    margin-bottom: 1.75rem;
+    animation: slideUp 0.45s ease 0.12s both;
+  }
+
+  .client-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-xl);
+    padding: 1.3rem 1.5rem;
+    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s;
+    cursor: default;
+    box-shadow: var(--shadow-sm);
+    position: relative; overflow: hidden;
+  }
+  .client-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--indigo), var(--violet));
+  }
+  .client-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(79,70,229,0.3);
+    box-shadow: var(--shadow-xl);
+  }
+
+  .client-card-header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .client-name {
+    font-family: var(--font-display);
+    font-size: 15.5px; font-weight: 700;
+    color: var(--text-hero); line-height: 1.3;
+  }
+  .client-type {
+    font-size: 11px; color: var(--gold-dim);
+    font-weight: 500; margin-top: 3px;
+  }
+  .team-count {
+    background: linear-gradient(135deg, rgba(79,70,229,0.1), rgba(124,58,237,0.1));
+    border: 1px solid rgba(79,70,229,0.2);
+    border-radius: 20px; padding: 3px 11px;
+    font-size: 11.5px; color: var(--indigo); font-weight: 700;
+    white-space: nowrap; flex-shrink: 0;
+  }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 11px 0; }
+
+  .article-pill-list { display: flex; flex-direction: column; gap: 0; }
+  .article-pill {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 20px; padding: 4px 11px;
+    font-size: 12px; color: var(--text-secondary); font-weight: 500;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .article-pill:hover {
+    border-color: rgba(79,70,229,0.25);
+    background: rgba(79,70,229,0.05);
+    color: var(--indigo);
+  }
+  .pill-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    text-align: center; padding: 4rem 2rem; color: var(--text-muted);
+  }
+  .empty-icon { font-size: 48px; margin-bottom: 1rem; opacity: 0.5; }
+  .empty-text { font-size: 16px; font-weight: 600; color: var(--text-secondary); }
+  .empty-sub { font-size: 13px; margin-top: 6px; }
+
+  /* ── LOADER ── */
+  #loader {
+    display: flex; align-items: center; justify-content: center;
+    padding: 4rem; flex-direction: column; gap: 16px; color: var(--text-muted);
+  }
+  .spinner {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 3px solid var(--border2);
+    border-top-color: var(--indigo);
+    animation: spin 0.75s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── ANIMATIONS ── */
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; } to { opacity: 1; }
+  }
+
+  /* ── SECTION LABEL ── */
+  .section-label {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--indigo); font-weight: 700;
+    margin-bottom: 1rem;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-label::after {
+    content: ''; flex: 1; height: 1.5px;
+    background: linear-gradient(90deg, var(--border2), transparent);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    position: relative; z-index: 1;
+    text-align: center; padding: 1.5rem 2rem 2.5rem;
+    font-size: 12px; color: var(--text-muted); font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+  footer span { color: var(--indigo); font-weight: 700; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    main { padding: 1rem; }
+    header { padding: 0 1rem; }
+    .search-inputs { flex-wrap: wrap; }
+    .stats-row { flex-wrap: wrap; }
+    .stat-card { min-width: 0; flex: 1 1 160px; }
+    thead th:nth-child(n+4), td:nth-child(n+4) { display: none; }
+    .hero-title { font-size: 22px; }
+  }
+
+  /* ── DATE BADGE (inline: table & article tab) ── */
+  .date-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: linear-gradient(135deg, rgba(79,70,229,0.07), rgba(124,58,237,0.07));
+    border: 1px solid rgba(79,70,229,0.18);
+    border-radius: 20px; padding: 4px 10px;
+    font-size: 12px; font-weight: 600; white-space: nowrap;
+  }
+  .date-from { color: #4338ca; }
+  .date-arrow { color: #a5b4fc; font-size: 11px; }
+  .date-to   { color: #7c3aed; }
+
+  /* ── DATE CARD WRAP (client cards) ── */
+  .date-card-wrap { display: flex; flex-direction: column; gap: 3px; }
+  .date-card-row  { display: flex; align-items: center; gap: 6px; }
+  .date-card-lbl  { font-size: 10px; color: var(--text-muted); font-weight: 500; min-width: 46px; }
+  .date-card-val  { font-size: 12px; font-weight: 700; padding: 1px 8px; border-radius: 6px; }
+  .date-card-val.dfrom { background: rgba(79,70,229,0.09); color: #4338ca; }
+  .date-card-val.dto   { background: rgba(124,58,237,0.09); color: #6d28d9; }
+
+  /* ── CARD FOOTER ROW ── */
+  .card-footer-row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 8px; flex-wrap: wrap; margin-top: 10px;
+  }
+
+  /* ── ARTICLE PILL ROW (inside client cards) ── */
+  .article-pill-row {
+    display: flex; align-items: center; gap: 6px;
+    width: 100%; flex-wrap: wrap;
+    padding: 5px 0;
+    border-bottom: 1px dashed rgba(212,220,245,0.5);
+  }
+  .article-pill-row:last-child { border-bottom: none; }
+  .article-pill { flex: 1 1 auto; }
+  .pill-name { font-weight: 600; color: var(--text-primary); }
+  .pill-role {
+    font-size: 10px; color: var(--indigo);
+    background: rgba(79,70,229,0.08);
+    border-radius: 4px; padding: 1px 6px; font-weight: 600;
+  }
+  .pill-date { flex-shrink: 0; }
+
+
+  /* ── DATE EDITOR MODAL ── */
+  #dateModal {
+    position: fixed; inset: 0; z-index: 1000;
+    background: rgba(15,23,42,0.55);
+    backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center;
+    padding: 1rem;
+    animation: fadeIn 0.18s ease;
+  }
+  .modal-box {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-2xl);
+    box-shadow: var(--shadow-xl);
+    width: 100%; max-width: 440px;
+    animation: slideUp 0.22s ease;
+    overflow: hidden;
+  }
+  .modal-header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    padding: 1.4rem 1.6rem 1rem;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(90deg, rgba(79,70,229,0.04), rgba(124,58,237,0.03));
+  }
+  .modal-title {
+    font-family: var(--font-display);
+    font-size: 18px; font-weight: 700; color: var(--text-hero);
+  }
+  .modal-sub {
+    font-size: 12.5px; color: var(--indigo); font-weight: 600; margin-top: 3px;
+  }
+  .modal-close {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 8px; width: 32px; height: 32px;
+    font-size: 14px; cursor: pointer; color: var(--text-muted);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s; flex-shrink: 0;
+  }
+  .modal-close:hover { background: rgba(239,68,68,0.1); color: var(--danger); border-color: rgba(239,68,68,0.3); }
+  .modal-body { padding: 1.4rem 1.6rem; display: flex; flex-direction: column; gap: 1.1rem; }
+  .modal-field { display: flex; flex-direction: column; gap: 6px; }
+  .modal-label {
+    font-size: 13px; font-weight: 700; color: var(--text-primary);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .req { color: var(--danger); font-size: 14px; }
+  .opt {
+    font-size: 10px; font-weight: 600; color: var(--text-muted);
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1px 8px; text-transform: uppercase; letter-spacing: 0.07em;
+  }
+  .modal-input {
+    background: var(--bg2); border: 1.5px solid var(--border);
+    border-radius: var(--r-lg); padding: 11px 14px;
+    font-family: var(--font-body); font-size: 14px; font-weight: 500;
+    color: var(--text-primary); outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%;
+  }
+  .modal-input:focus { border-color: var(--indigo); box-shadow: 0 0 0 3px rgba(79,70,229,0.12); background: #fff; }
+  .modal-input:required:invalid { border-color: rgba(239,68,68,0.4); }
+  .modal-hint { font-size: 11.5px; color: var(--text-muted); }
+  .modal-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1rem 1.6rem 1.4rem; gap: 12px; flex-wrap: wrap;
+  }
+  .modal-status { font-size: 12.5px; font-weight: 600; min-height: 20px; }
+  .modal-status.ok    { color: var(--success); }
+  .modal-status.err   { color: var(--danger); }
+  .modal-status.saving { color: var(--indigo); }
+  .modal-btn {
+    border-radius: var(--r-lg); padding: 10px 22px;
+    font-family: var(--font-body); font-size: 13px; font-weight: 700;
+    cursor: pointer; border: 1.5px solid transparent; transition: all 0.2s;
+  }
+  .modal-btn.primary {
+    background: linear-gradient(135deg, var(--indigo), var(--violet));
+    color: #fff; box-shadow: 0 4px 12px rgba(79,70,229,0.3);
+  }
+  .modal-btn.primary:hover { box-shadow: 0 6px 18px rgba(79,70,229,0.4); transform: translateY(-1px); }
+  .modal-btn.secondary {
+    background: var(--bg2); border-color: var(--border); color: var(--text-secondary);
+  }
+  .modal-btn.secondary:hover { border-color: var(--indigo); color: var(--indigo); }
+
+  /* Edit icon on table rows */
+  .edit-date-btn {
+    background: none; border: none; cursor: pointer;
+    color: var(--text-muted); font-size: 14px; padding: 4px 6px;
+    border-radius: 6px; transition: all 0.15s; line-height: 1;
+    opacity: 0;
+  }
+  tbody tr:hover .edit-date-btn { opacity: 1; }
+  .edit-date-btn:hover { background: rgba(79,70,229,0.1); color: var(--indigo); }
+
+  /* Edit pencil on pill rows in cards */
+  .pill-edit-btn {
+    background: none; border: none; cursor: pointer;
+    color: var(--text-muted); font-size: 12px; padding: 2px 5px;
+    border-radius: 5px; transition: all 0.15s; opacity: 0;
+    flex-shrink: 0;
+  }
+  .article-pill-row:hover .pill-edit-btn { opacity: 1; }
+  .pill-edit-btn:hover { background: rgba(79,70,229,0.1); color: var(--indigo); }
+
+  /* ── DATE GROUP DIVIDER (inside client cards) ── */
+  .date-group-divider {
+    display: flex; align-items: center; gap: 8px;
+    margin: 8px 0 4px;
+  }
+  .date-group-divider::before, .date-group-divider::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(90deg, rgba(79,70,229,0.18), transparent);
+  }
+  .date-group-divider::before { background: linear-gradient(90deg, transparent, rgba(79,70,229,0.18)); }
+  .date-group-label {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--indigo);
+    background: rgba(79,70,229,0.07);
+    border: 1px solid rgba(79,70,229,0.18);
+    border-radius: 20px; padding: 2px 10px;
+    white-space: nowrap;
+  }
+
+  /* ── MARK COMPLETED BUTTON (table) ── */
+  .complete-btn {
+    background: linear-gradient(135deg, rgba(16,185,129,0.12), rgba(5,150,105,0.12));
+    border: 1.5px solid rgba(16,185,129,0.35);
+    border-radius: 8px; padding: 5px 13px;
+    font-family: var(--font-body); font-size: 12px; font-weight: 700;
+    color: #059669; cursor: pointer;
+    transition: all 0.18s; white-space: nowrap;
+  }
+  .complete-btn:hover {
+    background: linear-gradient(135deg, rgba(16,185,129,0.22), rgba(5,150,105,0.22));
+    border-color: #10b981;
+    box-shadow: 0 3px 10px rgba(16,185,129,0.25);
+    transform: translateY(-1px);
+  }
+
+  /* ── MARK COMPLETED BUTTON (small, in cards) ── */
+  .complete-btn-sm {
+    background: rgba(16,185,129,0.1);
+    border: 1.5px solid rgba(16,185,129,0.3);
+    border-radius: 6px; padding: 2px 8px;
+    font-size: 11px; font-weight: 700; color: #059669;
+    cursor: pointer; transition: all 0.15s; flex-shrink: 0;
+    opacity: 0;
+  }
+  .article-pill-row:hover .complete-btn-sm { opacity: 1; }
+  .complete-btn-sm:hover { background: rgba(16,185,129,0.2); border-color: #10b981; }
+
+  /* ── COMPLETED PILL STATE ── */
+  .pill-completed { opacity: 0.65; }
+  .pill-completed .pill-name { text-decoration: line-through; color: var(--text-muted); }
 </style>
 </head>
 <body>
 
-<!-- ═══ LOGIN ═══ -->
-<div id="loginDiv" class="login-wrap">
-  <div class="login-header">
-    <div class="login-icon">
-      <svg width="22" height="22" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
-    </div>
-    <h2>Articleship Portal</h2>
-    <p>Sign in to access your portal</p>
-  </div>
-  <div class="login-tabs">
-    <button id="tabMgrBtn" class="login-tab active" onclick="switchTab('manager')">
-      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-      Manager
-    </button>
-    <button id="tabArtBtn" class="login-tab" onclick="switchTab('article')">
-      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-      Article
-    </button>
-  </div>
-  <div id="mgrTabContent" class="login-body">
-    <div id="registerFields" class="hidden">
-      <div class="input-group"><label class="lbl">Full Name</label><input id="nameEl" type="text" placeholder="Your full name"></div>
-      <div class="input-group"><label class="lbl">Role</label><select id="roleEl"><option value="article">Article (User)</option><option value="manager">Manager (Admin)</option></select></div>
-    </div>
-    <div class="input-group"><label class="lbl">Email</label><input id="emailEl" type="email" placeholder="manager@example.com"></div>
-    <div class="input-group"><label class="lbl">Password</label><input id="passEl" type="password" placeholder="Enter password"></div>
-    <button id="loginBtn" style="width:100%;margin-top:4px;">Sign In as Manager</button>
-    <div class="toggle-text"><span id="toggleTextSpan">Don't have an account?</span> <a id="toggleAuthBtn">Register here</a></div>
-  </div>
-  <div id="artTabContent" class="login-body" style="display:none;">
-    <p style="color:var(--text-muted);font-size:13px;margin-bottom:18px;line-height:1.6;">View your allocations and assignments on the Article portal.</p>
-    <a href="https://nihalshalu007.github.io/vpll/" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:12px 20px;border-radius:var(--radius-sm);text-decoration:none;background:var(--primary);color:white;font-size:14px;font-weight:600;">
-      <svg width="15" height="15" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-      Open Article Portal
-    </a>
-    <p style="text-align:center;color:var(--text-dim);font-size:12px;margin-top:14px;">URL will be configured soon</p>
-  </div>
-</div>
-
-<script>
-function switchTab(t){
-  const mB=document.getElementById('tabMgrBtn'),aB=document.getElementById('tabArtBtn');
-  const mC=document.getElementById('mgrTabContent'),aC=document.getElementById('artTabContent');
-  if(t==='manager'){
-    mB.classList.add('active'); aB.classList.remove('active');
-    mC.style.display='block'; aC.style.display='none';
-  }else{
-    aB.classList.add('active'); mB.classList.remove('active');
-    aC.style.display='block'; mC.style.display='none';
-  }
-}
-</script>
-
-<!-- ═══ DASHBOARD ═══ -->
-<div id="appDiv" class="app-shell hidden">
-  <div class="app-topbar">
+<header>
+  <div class="logo">
+    <div class="logo-mark">V</div>
     <div>
-      <h2>Articleship Dashboard</h2>
-      <p id="userRoleEl"></p>
+      <div class="logo-text">Varma & Co.</div>
+      <div class="logo-sub">Chartered Accountants</div>
     </div>
-    <button id="logoutBtn" class="btn-logout">Sign Out</button>
+  </div>
+  <div class="header-right">
+    <div class="live-badge">
+      <div class="live-dot"></div> Live Data
+    </div>
+    <div class="dev-badge">by <span>nihalshalu</span></div>
+  </div>
+</header>
+
+<main>
+  <!-- HERO -->
+  <div class="page-hero">
+    <div>
+      <div class="hero-title">Article <span>Allocation</span> Dashboard</div>
+      <div class="hero-sub">Manage and track all article assignments across clients and partners</div>
+    </div>
   </div>
 
-  <!-- ── MANAGER ── -->
-  <div id="managerDiv" class="hidden">
-    <nav class="mgr-nav">
-      <button id="mgrTab-clients"    class="mgr-tab active" onclick="switchMgrTab('clients')">🏢 Clients</button>
-      <button id="mgrTab-articles"   class="mgr-tab"        onclick="switchMgrTab('articles')">👤 Articles</button>
-      <button id="mgrTab-allocate"   class="mgr-tab"        onclick="switchMgrTab('allocate')">📌 New Allocation</button>
-      <button id="mgrTab-viewallocs" class="mgr-tab"        onclick="switchMgrTab('viewallocs')">📋 View Allocations</button>
-    </nav>
-
-    <!-- CLIENTS -->
-    <div id="mgrPanel-clients">
-      <div class="panel-section">
-        <h3>Add Client</h3>
-        <div class="form-row">
-          <div class="input-group" style="margin:0"><label class="lbl">Client Name *</label><input id="newClientNameEl" placeholder="Client name"></div>
-          <div class="input-group" style="margin:0"><label class="lbl">Location *</label><input id="newClientLocEl" placeholder="e.g. Bangalore"></div>
-          <div><button id="addClientBtn" style="width:100%;height:42px;">+ Add Client</button></div>
-        </div>
-      </div>
-      <div class="panel-section">
-        <h3>Client List</h3>
-        <div id="clientListDiv"><div class="empty">No clients added yet.</div></div>
+  <!-- STATS -->
+  <div class="stats-row" id="statsRow">
+    <div class="stat-card" style="animation-delay:0s">
+      <div class="stat-icon indigo">📋</div>
+      <div class="stat-info">
+        <div class="stat-label">Total Articles</div>
+        <div class="stat-value indigo" id="statArticles">—</div>
+        <div class="stat-sub">Enrolled articleship</div>
       </div>
     </div>
-
-    <!-- ARTICLES -->
-    <div id="mgrPanel-articles" class="hidden">
-      <div class="panel-section">
-        <h3>Add Article</h3>
-        <div class="form-row">
-          <div class="input-group" style="margin:0"><label class="lbl">Article Name *</label><input id="newArticleEl" placeholder="Full name"></div>
-          <div class="input-group" style="margin:0"><label class="lbl">Location (optional)</label><input id="newArticleLocEl" placeholder="e.g. Chennai"></div>
-          <div class="input-group" style="margin:0">
-            <label class="lbl">Course</label>
-            <select id="newArticleCourseEl">
-              <option value="">— Select —</option>
-              <option>CA</option><option>CMA</option><option>BCOM</option><option>CS</option><option>ACCA</option>
-            </select>
-          </div>
-          <div><button id="addArticleBtn" style="width:100%;height:42px;">+ Add Article</button></div>
-        </div>
-      </div>
-      <div class="panel-section">
-        <h3>Article List</h3>
-        <div id="articleListDiv"><div class="empty">No articles added yet.</div></div>
+    <div class="stat-card" style="animation-delay:0.07s">
+      <div class="stat-icon cyan">🏢</div>
+      <div class="stat-info">
+        <div class="stat-label">Active Clients</div>
+        <div class="stat-value cyan" id="statClients">—</div>
+        <div class="stat-sub">Allocated assignments</div>
       </div>
     </div>
-
-    <!-- NEW ALLOCATION -->
-    <div id="mgrPanel-allocate" class="hidden">
-      <div class="panel-section">
-        <h3>New Allocation</h3>
-
-        <!-- Step 1: Dates + Client -->
-        <div class="alloc-step">
-          <div class="step-label"><span class="step-num">1</span> Set dates &amp; client</div>
-          <div class="g3">
-            <div class="input-group" style="margin:0"><label class="lbl">Start Date *</label><input type="date" id="allocStart"></div>
-            <div class="input-group" style="margin:0"><label class="lbl">End Date (optional)</label><input type="date" id="allocEnd"></div>
-            <div class="input-group" style="margin:0"><label class="lbl">Client *</label><select id="allocClient"><option value="">Select Client</option></select></div>
-          </div>
-        </div>
-
-        <!-- Step 2: Pick articles -->
-        <div class="alloc-step">
-          <div class="step-label"><span class="step-num">2</span> Select article(s) — set a start date first to see availability</div>
-          <div id="pickerHint" class="picker-hint">
-            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            Choose a start date above to load article availability
-          </div>
-          <div id="articlePicker" class="picker"></div>
-          <div id="selWrap" style="display:none;" class="sel-summary">
-            Selected: <span id="selNames"></span>
-          </div>
-        </div>
-
-        <!-- Step 3: Confirm -->
-        <div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
-          <button id="doAllocBtn" style="min-width:120px;">✓ Allocate</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- VIEW ALLOCATIONS -->
-    <div id="mgrPanel-viewallocs" class="hidden">
-      <div class="panel-section">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-          <h3 style="margin:0;">All Allocations</h3>
-          <span id="allocCount" style="font-size:13px;color:var(--text-muted);background:var(--surface2);padding:4px 12px;border-radius:20px;border:1px solid var(--border);"></span>
-        </div>
-        <div class="alloc-table-wrap">
-          <table>
-            <thead><tr><th>Article(s)</th><th>Client</th><th>Period</th><th>Status</th><th style="text-align:right;">Action</th></tr></thead>
-            <tbody id="tbody"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div><!-- /managerDiv -->
-
-  <!-- ── ARTICLE USER ── -->
-  <div id="articlePanel" class="hidden">
-    <div class="panel-section"><h3>My Allocations</h3><div id="myDataDiv"></div></div>
   </div>
-</div><!-- /appDiv -->
 
-<!-- Edit Modal -->
-<div id="editModal" class="modal-bg">
+  <!-- SEARCH -->
+  <div class="search-section">
+    <div class="search-top-row">
+      <div class="search-label">🔎 Filter Allocations</div>
+      <div class="search-tabs">
+        <button class="tab-btn active" onclick="switchTab('all')">All Allocations</button>
+        <button class="tab-btn" onclick="switchTab('article')">By Article</button>
+        <button class="tab-btn" onclick="switchTab('client')">By Client</button>
+      </div>
+    </div>
+    <div class="search-inputs">
+      <div class="search-input-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="search-input" id="searchInput"
+          placeholder="Search articles, clients, partners…"
+          oninput="onSearch(this.value)">
+      </div>
+      <button class="clear-btn" onclick="clearSearch()">✕ Clear</button>
+    </div>
+  </div>
+
+  <!-- TABLE VIEW (all / article) -->
+  <div id="tableView">
+    <div class="table-section">
+      <div class="table-header">
+        <div class="table-title" id="tableViewTitle">All Allocations</div>
+        <div class="table-header-right">
+          <div class="result-count" id="resultCount">Loading…</div>
+        </div>
+      </div>
+      <div id="loader"><div class="spinner"></div><div>Fetching allocations…</div></div>
+      <div id="debugPanel" style="display:none;margin:1rem 1.5rem;padding:1rem 1.2rem;background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.3);border-radius:10px;font-family:monospace;font-size:12px;color:#92400e;white-space:pre-wrap;word-break:break-all;max-height:200px;overflow-y:auto;line-height:1.7;"></div>
+      <div id="tableWrap" style="display:none; overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Article</th>
+              <th>Client &amp; Start Date</th>
+              <th>End Date</th>
+              <th>Partner</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARD VIEW (client) -->
+  <div id="cardView" style="display:none;">
+    <div class="section-label">Client Overview</div>
+    <div class="cards-grid" id="cardsGrid"></div>
+  </div>
+
+  <!-- EMPTY STATE -->
+  <div id="emptyState" style="display:none;">
+    <div class="empty-state">
+      <div class="empty-icon">🔎</div>
+      <div class="empty-text">No results found</div>
+      <div class="empty-sub">Try a different name or clear the search</div>
+    </div>
+  </div>
+
+<!-- DATE EDITOR MODAL -->
+<div id="dateModal" style="display:none" onclick="if(event.target===this)closeDateModal()">
   <div class="modal-box">
-    <h3 id="editTitle">Edit</h3>
-    <div id="editBody"></div>
-    <div class="modal-acts">
-      <button class="btn-cancel" id="editCancelBtn" style="padding:10px 20px;border-radius:10px;border:none;font-size:14px;cursor:pointer;">Cancel</button>
-      <button id="editSaveBtn" style="padding:10px 20px;border-radius:10px;font-size:14px;font-weight:500;">Save</button>
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">📅 Set Allocation Dates</div>
+        <div class="modal-sub" id="modalArticleName">—</div>
+      </div>
+      <button class="modal-close" onclick="closeDateModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-field">
+        <label class="modal-label">Start Date <span class="opt">from Firebase</span></label>
+        <div id="modalStartDateDisplay" style="background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:11px 14px;font-size:14px;font-weight:600;color:var(--indigo);min-height:44px;display:flex;align-items:center;gap:6px">—</div>
+        <div class="modal-hint">Start date is set in Firebase and cannot be edited here</div>
+      </div>
+      <div class="modal-field">
+        <label class="modal-label">End Date <span class="opt">optional</span></label>
+        <input type="date" id="modalEndDate" class="modal-input">
+        <div class="modal-hint">Leave blank if articleship is still ongoing</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div id="modalStatus" class="modal-status"></div>
+      <div style="display:flex;gap:10px">
+        <button class="modal-btn secondary" onclick="closeDateModal()">Cancel</button>
+        <button class="modal-btn primary" onclick="saveDates()">💾 Save to Firebase</button>
+      </div>
     </div>
   </div>
 </div>
+</main>
 
-<!-- ═══ FIREBASE LOGIC ═══ -->
+<footer>
+  Developed by <span>nihalshalu</span> · Varma & Co. Article Allocation System
+</footer>
+
 <script type="module">
-import { initializeApp }    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut }
-  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getDatabase, ref, push, set, onValue, remove, get, update }
-  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 const firebaseConfig = {
-  apiKey:"AIzaSyAN4QEBtD6ua2gWhKh__tmxrpARozKaCz0",
-  authDomain:"varma-allocation.firebaseapp.com",
-  databaseURL:"https://varma-allocation-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId:"varma-allocation",
-  storageBucket:"varma-allocation.firebasestorage.app",
-  messagingSenderId:"1015226386601",
-  appId:"1:1015226386601:web:3828848bb0b7acee6441b8"
+  apiKey: "AIzaSyAN4QEBtD6ua2gWhKh__tmxrpARozKaCz0",
+  authDomain: "varma-allocation.firebaseapp.com",
+  databaseURL: "https://varma-allocation-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "varma-allocation",
+  storageBucket: "varma-allocation.firebasestorage.app",
+  messagingSenderId: "1015226386601",
+  appId: "1:1015226386601:web:3828848bb0b7acee6441b8"
 };
-const app=initializeApp(firebaseConfig), auth=getAuth(app), db=getDatabase(app);
 
-// Seeder disabled to prevent duplicate data on login
-// Run manually via the "Seed Default Data" button in the manager panel if needed
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
+let allData = [];
+let currentTab = 'all';
+let currentSearch = '';
 
-// ── One-time duplicate cleanup (ONLY called by manual button, self-disables via meta flag) ──
-async function runDedupe(){
-  try{
-    const dedupeRef=ref(db,'meta/deduped');
-    const ds=await get(dedupeRef);
-    if(ds.exists()){alert("Cleanup already run. No changes made.");return;}
-    const snap=await get(ref(db,'articles'));
-    let removed=0;
-    if(snap.exists()){
-      const seen=new Set();
-      const removals=[];
-      snap.forEach(c=>{
-        const name=(c.val().name||'').toLowerCase().trim();
-        if(seen.has(name)){removals.push(remove(ref(db,'articles/'+c.key)));}
-        else{seen.add(name);}
-      });
-      if(removals.length){await Promise.all(removals);removed=removals.length;}
-    }
-    await set(dedupeRef,true);
-    alert(`Cleanup complete! Removed ${removed} duplicate(s).`);
-  }catch(e){console.error('Dedupe error:',e);alert("Cleanup error: "+e.message);}
+const AVATAR_COLORS = [
+  ['#ede9fe','#4f46e5'],['#ecfdf5','#059669'],['#fee2e2','#dc2626'],
+  ['#fdf4ff','#9333ea'],['#fff7ed','#ea580c'],['#ecfeff','#0891b2'],
+  ['#fdf2f8','#db2777'],['#f0fdf4','#16a34a']
+];
+
+function avatarStyle(name) {
+  const idx = (name || '').charCodeAt(0) % AVATAR_COLORS.length;
+  const [bg, fg] = AVATAR_COLORS[idx];
+  return `background:${bg};color:${fg};border:1.5px solid ${fg}30`;
 }
 
-// ── Helpers ───────────────────────────────────────────────────
-const getEndMs  = d => d ? new Date(d).getTime() : Infinity;
-const getAllocEndMs = d => d ? new Date(d).getTime() : Infinity; // ongoing alloc = always busy until explicitly ended
-const fmtPeriod = (s,e) => e ? `${s} → ${e}` : `${s} → Ongoing`;
+function initials(name) {
+  if (!name) return '?';
+  return name.trim().split(/\s+/).map(w=>w[0]).join('').toUpperCase().slice(0,2);
+}
 
-// Builds dual lookup maps (key-based NEW records + name-based LEGACY records)
-function buildMaps(cSnap, aSnap) {
-  const cByKey={}, cByName={}, aByKey={}, aByName={};
-  if(cSnap&&cSnap.exists()) cSnap.forEach(c=>{
-    const d=c.val(), lbl=d.location?`${d.name} · ${d.location}`:d.name;
-    cByKey[c.key]=lbl; cByName[d.name]=lbl;
-  });
-  if(aSnap&&aSnap.exists()) aSnap.forEach(c=>{
-    aByKey[c.key]=c.val().name; aByName[c.val().name]=c.val().name;
-  });
+function statusBadge(status) {
+  if (!status) return '<span class="status-dot"><span class="dot" style="background:#cbd5e1"></span><span style="color:#94a3b8">—</span></span>';
+  const s = status.toLowerCase();
+  if (s.includes('active') || s.includes('ongoing'))
+    return `<span class="status-dot"><span class="dot" style="background:#10b981;box-shadow:0 0 5px rgba(16,185,129,0.5)"></span><span style="color:#059669;font-weight:600">${status}</span></span>`;
+  if (s.includes('complet') || s.includes('done'))
+    return `<span class="status-dot"><span class="dot" style="background:#3b82f6"></span><span style="color:#2563eb;font-weight:600">${status}</span></span>`;
+  if (s.includes('pending') || s.includes('upcoming'))
+    return `<span class="status-dot"><span class="dot" style="background:#f59e0b"></span><span style="color:#d97706;font-weight:600">${status}</span></span>`;
+  return `<span class="status-dot"><span class="dot" style="background:#94a3b8"></span><span style="color:#64748b">${status}</span></span>`;
+}
+
+function roleTag(role) {
+  if (!role) return '';
+  const r = role.toLowerCase();
+  let bg, col, bdr;
+  if (r.includes('senior') || r.includes('lead')) {
+    bg='rgba(245,158,11,0.1)'; col='#b45309'; bdr='rgba(245,158,11,0.28)';
+  } else if (r.includes('junior') || r.includes('assist')) {
+    bg='rgba(14,165,233,0.1)'; col='#0369a1'; bdr='rgba(14,165,233,0.28)';
+  } else {
+    bg='rgba(79,70,229,0.08)'; col='#4338ca'; bdr='rgba(79,70,229,0.22)';
+  }
+  return `<span class="role-tag" style="background:${bg};color:${col};border:1px solid ${bdr}">${role}</span>`;
+}
+
+function dateBadge(r, inline) {
+  const from = r.from || '';
+  const to   = r.to   || '';
+  if (!from && !to) return '<span style="color:#cbd5e1;font-size:12px">—</span>';
+  if (inline) {
+    return `<span class="date-badge">
+      <span class="date-from">${from || '?'}</span>
+      ${to ? `<span class="date-arrow">→</span><span class="date-to">${to}</span>` : ''}
+    </span>`;
+  } else {
+    return `<div class="date-card-wrap">
+      <div class="date-card-row"><span class="date-card-lbl">📅 From</span><span class="date-card-val dfrom">${from || '?'}</span></div>
+      ${to ? `<div class="date-card-row"><span class="date-card-lbl">🏁 To</span><span class="date-card-val dto">${to}</span></div>` : ''}
+    </div>`;
+  }
+}
+
+function parseData(snapshot) {
+  const rows = [];
+  const raw = snapshot.val();
+  if (!raw) return rows;
+  const keys = Object.keys(raw);
+
+  // Build lookup maps: pushKey → human name
+  const articleLookup = {};
+  const clientLookup  = {};
+  const partnerLookup = {};
+
+  if (raw.articles && typeof raw.articles === 'object') {
+    Object.entries(raw.articles).forEach(([id, a]) => {
+      if (!a) return;
+      const n = a.name || a.articleName || a.article_name || a.article || '';
+      if (n) articleLookup[id] = n;
+    });
+  }
+  if (raw.clients && typeof raw.clients === 'object') {
+    Object.entries(raw.clients).forEach(([id, c]) => {
+      if (!c) return;
+      const n = c.name || c.clientName || c.client_name || c.client || '';
+      if (n) clientLookup[id] = n;
+    });
+  }
+  if (raw.partners && typeof raw.partners === 'object') {
+    Object.entries(raw.partners).forEach(([id, p]) => {
+      if (!p) return;
+      const n = p.name || p.partnerName || p.partner_name || p.partner || '';
+      if (n) partnerLookup[id] = n;
+    });
+  }
+
+  // Resolve a value: if it's a Firebase push key, swap it for the real name
+  function res(val, lookup) {
+    if (!val || typeof val !== 'string') return val || '';
+    const v = val.trim();
+    return (lookup && /^-[A-Za-z0-9_-]{19,}$/.test(v) && lookup[v]) ? lookup[v] : v;
+  }
+
+  if (keys.includes('allocations')) {
+    Object.entries(raw.allocations).forEach(([k, r]) => {
+      if (!r) return;
+      if (r.allocations && typeof r.allocations === 'object') {
+        // Article has multiple allocation periods → separate rows
+        Object.entries(r.allocations).forEach(([ak, alloc]) => {
+          rows.push(normalize({ article: res(r.name || r.article || k, articleLookup), ...alloc }, ak, 'allocations/' + k + '/allocations', clientLookup, partnerLookup, articleLookup));
+        });
+      } else {
+        rows.push(normalize(r, k, 'allocations', clientLookup, partnerLookup, articleLookup));
+      }
+    });
+  } else if (keys.includes('articles')) {
+    Object.entries(raw.articles).forEach(([aid, art]) => {
+      if (!art) return;
+      if (art.allocations && typeof art.allocations === 'object') {
+        Object.entries(art.allocations).forEach(([ak, alloc]) => {
+          rows.push(normalize({ article: art.name || art.article || aid, ...alloc }, ak, 'articles/' + aid + '/allocations'));
+        });
+      } else {
+        rows.push(normalize({ article: art.name || art.article || aid, ...art }, aid, 'articles'));
+      }
+    });
+  } else if (keys.includes('clients')) {
+    Object.entries(raw.clients).forEach(([cid, cl]) => {
+      if (!cl) return;
+      if (cl.articles && typeof cl.articles === 'object') {
+        Object.entries(cl.articles).forEach(([aid, art]) => {
+          if (!art) return;
+          if (art.allocations && typeof art.allocations === 'object') {
+            Object.entries(art.allocations).forEach(([ak, alloc]) => {
+              rows.push(normalize({ client: cl.name || cl.client || cid, article: art.name || art.article || aid, ...alloc }, ak, 'clients/' + cid + '/articles/' + aid + '/allocations'));
+            });
+          } else {
+            rows.push(normalize({ client: cl.name || cl.client || cid, ...art }, aid, 'clients/' + cid + '/articles'));
+          }
+        });
+      } else {
+        rows.push(normalize({ client: cl.name || cl.client || cid, ...cl }, cid, 'clients'));
+      }
+    });
+  } else {
+    // Flat root-level — each key is one allocation record
+    Object.entries(raw).forEach(([k, v]) => {
+      if (typeof v !== 'object' || v === null) return;
+      if (v.allocations && typeof v.allocations === 'object') {
+        Object.entries(v.allocations).forEach(([ak, alloc]) => {
+          rows.push(normalize({ article: v.name || v.article || k, ...alloc }, ak, k + '/allocations'));
+        });
+      } else {
+        rows.push(normalize(v, k, ''));
+      }
+    });
+  }
+
+  return rows.filter(r => r.article || r.client);
+}
+
+function normalize(r, _key, _path, clientLookup, partnerLookup, articleLookup) {
+  clientLookup  = clientLookup  || {};
+  partnerLookup = partnerLookup || {};
+  articleLookup = articleLookup || {};
+
+  // Resolve a raw value: if it's a Firebase push key, swap for real name
+  function res(val, lookup) {
+    if (!val || typeof val !== 'string') return val || '';
+    const v = val.trim();
+    return (lookup && /^-[A-Za-z0-9_-]{19,}$/.test(v) && lookup[v]) ? lookup[v] : v;
+  }
+  const periodRaw = r.period || r.duration || r.year || r.batch || '';
+
+  // Safely coerce a Firebase value to a plain string (handles Timestamps, numbers, etc.)
+  function toStr(v) {
+    if (!v && v !== 0) return '';
+    if (typeof v === 'string') return v.trim();
+    if (typeof v === 'number') {
+      // Could be a Unix timestamp in ms or seconds
+      const d = new Date(v > 1e10 ? v : v * 1000);
+      return isNaN(d) ? String(v) : d.toISOString().slice(0,10);
+    }
+    if (typeof v === 'object' && v.seconds) {
+      // Firebase Timestamp {seconds, nanoseconds}
+      return new Date(v.seconds * 1000).toISOString().slice(0,10);
+    }
+    return String(v).trim();
+  }
+
+  // Pull raw date values from every known Firebase field name
+  // Each field is individually coerced so null/undefined don't short-circuit valid values
+  function pickDate(...fields) {
+    for (const v of fields) { const s = toStr(v); if (s) return s; }
+    return '';
+  }
+  let startRaw = pickDate(r.startDate, r.fromDate, r.from_date, r.start_date,
+                          r.joiningDate, r.joining_date, r.dateFrom, r.joinDate, r.from, r.date);
+  let endRaw   = pickDate(r.endDate, r.toDate, r.to_date, r.end_date,
+                          r.dateUpto, r.dateTo, r.completionDate, r.expiryDate, r.to);
+
+  // Format any date string (ISO or natural) to "15 Jun 2023" for display
+  function fmtLocal(s) {
+    if (!s) return '';
+    const d = new Date(s + (s.length === 10 ? 'T00:00:00' : ''));
+    if (isNaN(d)) return s;
+    return d.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+  }
+
+  // Convert to a reliable ISO YYYY-MM-DD string for the modal date input
+  function toISO(s) {
+    if (!s) return '';
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s.trim())) return s.trim();
+    const d = new Date(s);
+    if (!isNaN(d)) return d.toISOString().slice(0, 10);
+    if (/^\d{4}$/.test(s.trim())) return s.trim() + '-01-01';
+    return '';
+  }
+
+  let from = fmtLocal(startRaw) || startRaw;
+  let to   = fmtLocal(endRaw)   || endRaw;
+
+  // Fallback: parse period string if no explicit fields found
+  if (!from && !to && periodRaw) {
+    let s = periodRaw
+      .replace(/[‒–—―]/g, '|')
+      .replace(/\s+to\s+/gi, '|')
+      .replace(/\s+-\s+/g, '|');
+    if (!s.includes('|')) s = s.replace(/^(\d{4})-(\d{4})$/, '$1|$2');
+    if (s.includes('|')) {
+      const parts = s.split('|').map(p => p.trim()).filter(Boolean);
+      if (parts.length >= 2) { from = parts[0]; to = parts[1]; startRaw = parts[0]; endRaw = parts[1]; }
+      else if (parts.length === 1) { from = parts[0]; startRaw = parts[0]; }
+    } else {
+      from = periodRaw.trim(); startRaw = periodRaw.trim();
+    }
+  }
+
+  const rawArticle = r.article || r.articleName || r.article_name || r.name || '';
+  const rawClient  = r.client  || r.clientName  || r.client_name  || r.organization || r.company || '';
+  const rawPartner = r.partner || r.partnerName || r.partner_name || r.supervisor   || r.manager || '';
+
   return {
-    rc: v => cByKey[v]||cByName[v]||v,
-    ra: v => aByKey[v]||aByName[v]||v,
-    cByKey,cByName,aByKey,aByName
+    article:   res(rawArticle, articleLookup),
+    client:    res(rawClient,  clientLookup),
+    partner:   res(rawPartner, partnerLookup),
+    role:      r.role    || r.designation || r.position     || '',
+    status:    r.status  || r.allocationStatus || '',
+    period:    periodRaw,
+    from:      from,          // formatted display "15 Jun 2023"
+    to:        to,            // formatted display "14 Jun 2026"
+    startDate: toISO(startRaw) || startRaw,  // raw ISO for modal
+    endDate:   toISO(endRaw)   || endRaw,    // raw ISO for modal
+    _key:      _key  || '',
+    _path:     _path || ''
   };
 }
+function dbg(msg) { console.log('[VarmaDB]', msg); }
 
-// ── DOM ───────────────────────────────────────────────────────
-const loginDiv=document.getElementById('loginDiv'), appDiv=document.getElementById('appDiv');
-const managerDiv=document.getElementById('managerDiv'), articlePanel=document.getElementById('articlePanel');
-const emailEl=document.getElementById('emailEl'), passEl=document.getElementById('passEl');
-const nameEl=document.getElementById('nameEl'), roleEl=document.getElementById('roleEl');
-const loginBtn=document.getElementById('loginBtn'), logoutBtn=document.getElementById('logoutBtn');
-const registerFields=document.getElementById('registerFields');
-const toggleAuthBtn=document.getElementById('toggleAuthBtn'), toggleTextSpan=document.getElementById('toggleTextSpan');
-const tbody=document.getElementById('tbody'), myDataDiv=document.getElementById('myDataDiv');
-const userRoleEl=document.getElementById('userRoleEl');
-
-let currentRole='', currentUserName='', isRegMode=false;
-
-// ── Manager tab switcher ──────────────────────────────────────
-window.switchMgrTab=function(tab){
-  ['clients','articles','allocate','viewallocs'].forEach(t=>{
-    document.getElementById('mgrPanel-'+t).classList.add('hidden');
-    document.getElementById('mgrTab-'+t).classList.remove('active');
-  });
-  document.getElementById('mgrPanel-'+tab).classList.remove('hidden');
-  document.getElementById('mgrTab-'+tab).classList.add('active');
-  // Refresh picker when opening allocate tab so newly added articles always appear
-  if(tab==='allocate' && document.getElementById('allocStart').value) refreshPicker();
-};
-
-// ── Auth UI toggle ────────────────────────────────────────────
-toggleAuthBtn.addEventListener('click',()=>{
-  isRegMode=!isRegMode;
-  if(isRegMode){loginBtn.textContent='Register';registerFields.classList.remove('hidden');toggleTextSpan.textContent='Already have an account?';toggleAuthBtn.textContent='Sign in here';}
-  else{loginBtn.textContent='Sign In as Manager';registerFields.classList.add('hidden');toggleTextSpan.textContent="Don't have an account?";toggleAuthBtn.textContent='Register here';}
-});
-
-// ── Login/Register ────────────────────────────────────────────
-loginBtn.addEventListener('click',async()=>{
-  const email=emailEl.value.trim(), pass=passEl.value;
-  if(!email||!pass) return alert("Enter email and password");
-  if(isRegMode){
-    const name=nameEl.value.trim(); if(!name) return alert("Enter your name");
-    loginBtn.textContent='Registering…';loginBtn.disabled=true;
-    try{ const c=await createUserWithEmailAndPassword(auth,email,pass); await set(ref(db,'users/'+c.user.uid),{name,email,role:roleEl.value}); alert("Account created!"); }
-    catch(e){alert("Registration failed: "+e.message);}
-    finally{loginBtn.textContent='Register';loginBtn.disabled=false;}
-  }else{
-    loginBtn.textContent='Signing in…';loginBtn.disabled=true;
-    try{
-      const c=await signInWithEmailAndPassword(auth,email,pass);
-      const s=await get(ref(db,'users/'+c.user.uid));
-      if(!s.exists()){const dn=email.split('@')[0],dr=["manager2"].includes(dn)?"manager":"article";await set(ref(db,'users/'+c.user.uid),{name:dn,email,role:dr});currentRole=dr;currentUserName=dn;alert(`Welcome! Set up as ${dr.toUpperCase()}.`);}
-      else{currentRole=s.val().role;currentUserName=s.val().name||email;}
-    }catch(e){alert("Login failed: "+e.message);}
-    finally{loginBtn.textContent='Sign In as Manager';loginBtn.disabled=false;}
-  }
-});
-
-logoutBtn.addEventListener('click',()=>{if(confirm("Log out?"))signOut(auth);});
-
-// ── Auth state ────────────────────────────────────────────────
-onAuthStateChanged(auth,async user=>{
-  if(!user){loginDiv.classList.remove('hidden');appDiv.classList.add('hidden');currentRole='';currentUserName='';emailEl.value='';passEl.value='';return;}
-  const s=await get(ref(db,'users/'+user.uid));
-  if(s.exists()){currentRole=s.val().role;currentUserName=s.val().name||user.email;}
-  else{
-    const dn = user.email.split('@')[0];
-    const dr = ["manager2"].includes(dn) ? "manager" : "article";
-    // 🔒 Only create ONCE safely
-    await update(ref(db,'users/'+user.uid),{
-      name: dn,
-      email: user.email,
-      role: dr
-    });
-    currentRole=dr;currentUserName=dn;
-  }
-  userRoleEl.textContent=`Logged in as ${currentUserName} (${currentRole.toUpperCase()})`;
-  loginDiv.classList.add('hidden');appDiv.classList.remove('hidden');
-  if(currentRole==='manager'){
-    managerDiv.classList.remove('hidden');articlePanel.classList.add('hidden');
-    initLiveListeners();
-    initMgrListeners();
-    loadClientList();loadArticleList();loadAllocClientDrop();loadAllocTable();
-  }else{
-    managerDiv.classList.add('hidden');articlePanel.classList.remove('hidden');
-    const as=await get(ref(db,'articles'));
-    let rn=currentUserName;
-    if(as.exists())as.forEach(c=>{if((c.val().name||'').toLowerCase()===currentUserName.toLowerCase())rn=c.val().name;});
-    loadMyAllocs(rn);
-  }
-});
-
-// ── Edit modal ────────────────────────────────────────────────
-let editState={};
-const editModal=document.getElementById('editModal');
-document.getElementById('editCancelBtn').addEventListener('click',()=>editModal.classList.remove('open'));
-editModal.addEventListener('click',e=>{if(e.target===editModal)editModal.classList.remove('open');});
-
-document.getElementById('editSaveBtn').addEventListener('click',async()=>{
-  const name=document.getElementById('editName').value.trim();
-  if(!name) return alert("Name is required");
-  if(editState.type==='client'){
-    const loc=document.getElementById('editLoc').value.trim();
-    if(!loc) return alert("Location is required");
-    await update(ref(db,'clients/'+editState.key),{name,location:loc});
-  }else{
-    const loc=document.getElementById('editLoc').value.trim();
-    const course=document.getElementById('editCourse').value;
-    await update(ref(db,'articles/'+editState.key),{name,location:loc,course});
-  }
-  editModal.classList.remove('open');
-});
-
-window.openEdit=function(type,key,dj){
-  editState={type,key};
-  const d=JSON.parse(dj.replace(/&quot;/g,'"'));
-  document.getElementById('editTitle').textContent=type==='client'?'Edit Client':'Edit Article';
-  if(type==='client'){
-    document.getElementById('editBody').innerHTML=`<div class="input-group"><label class="lbl">Name *</label><input id="editName" value="${d.name||''}"></div><div class="input-group"><label class="lbl">Location *</label><input id="editLoc" value="${d.location||''}"></div>`;
-  }else{
-    document.getElementById('editBody').innerHTML=`
-      <div class="input-group"><label class="lbl">Name *</label><input id="editName" value="${d.name||''}"></div>
-      <div class="input-group"><label class="lbl">Location (optional)</label><input id="editLoc" value="${d.location||''}"></div>
-      <div class="input-group"><label class="lbl">Course</label><select id="editCourse"><option value="">— Select —</option>${['CA','CMA','BCOM','CS','ACCA'].map(c=>`<option${d.course===c?' selected':''}>${c}</option>`).join('')}</select></div>`;
-  }
-  editModal.classList.add('open');
-};
-
-window.deleteItem=function(node,key){
-  if(confirm(`Delete this ${node==='clients'?'client':'article'}?`))remove(ref(db,node+'/'+key));
-};
-
-// ── Client list ───────────────────────────────────────────────
-function loadClientList(){
-  onValue(ref(db,'clients'),snap=>{
-    const el=document.getElementById('clientListDiv');
-    if(!snap.exists()){el.innerHTML='<div class="empty">No clients added yet.</div>';return;}
-    let html='';
-    snap.forEach(c=>{
-      const d=c.val(), dj=JSON.stringify({name:d.name,location:d.location||''}).replace(/"/g,'&quot;');
-      html+=`<div class="irow"><div class="irow-info"><span class="irow-name">${d.name} <span class="pill pill-g">${d.location||''}</span></span></div>
-      <div class="irow-actions"><button class="btn-edit" onclick='openEdit("client","${c.key}","${dj}")'>Edit</button><button class="danger" onclick='deleteItem("clients","${c.key}")'>Delete</button></div></div>`;
-    });
-    el.innerHTML=html;
-  });
+function showDemoData(reason) {
+  dbg('Loading demo data. Reason: ' + reason);
+  allData = DEMO_DATA.map(d => normalize(d, d._key, d._path));
+  updateStats(); render();
+  document.getElementById('loader').style.display = 'none';
+  document.getElementById('tableWrap').style.display = 'block';
 }
 
-// ── Article list ──────────────────────────────────────────────
-function loadArticleList(){
-  onValue(ref(db,'articles'),snap=>{
-    const el=document.getElementById('articleListDiv');
-    if(!snap.exists()){el.innerHTML='<div class="empty">No articles added yet.</div>';return;}
-    let html='';
-    snap.forEach(c=>{
-      const d=c.val(), dj=JSON.stringify({name:d.name,location:d.location||'',course:d.course||''}).replace(/"/g,'&quot;');
-      html+=`<div class="irow"><div class="irow-info"><span class="irow-name">${d.name}</span>
-      <span class="irow-sub">${d.location?`<span class="pill pill-g">${d.location}</span>`:''}${d.course?`<span class="pill pill-p">${d.course}</span>`:''}</span></div>
-      <div class="irow-actions"><button class="btn-edit" onclick='openEdit("article","${c.key}","${dj}")'>Edit</button><button class="danger" onclick='deleteItem("articles","${c.key}")'>Delete</button></div></div>`;
-    });
-    el.innerHTML=html;
-  });
-}
+function loadData() {
+  dbg('Connecting to Firebase...');
+  const rootRef = ref(db, '/');
+  onValue(rootRef, snap => {
+    dbg('onValue fired. exists=' + snap.exists());
+    if (!snap.exists()) { showDemoData('empty database'); return; }
+    const raw = snap.val();
+    dbg('Root keys: ' + JSON.stringify(Object.keys(raw || {})));
+    const rows = parseData(snap);
+    dbg('Parsed rows: ' + rows.length);
+    if (rows.length > 0) {
+      allData = rows; updateStats(); render();
+      document.getElementById('loader').style.display = 'none';
+      document.getElementById('tableWrap').style.display = 'block';
 
-// ── Add client / article ──────────────────────────────────────
-let listenersInited=false;
-function initMgrListeners(){
-  if(listenersInited)return; listenersInited=true;
-  document.getElementById('addClientBtn').addEventListener('click',()=>{
-    const name=document.getElementById('newClientNameEl').value.trim(), loc=document.getElementById('newClientLocEl').value.trim();
-    if(!name)return alert("Client name is required"); if(!loc)return alert("Location is required");
-    push(ref(db,'clients'),{name,location:loc});
-    document.getElementById('newClientNameEl').value=''; document.getElementById('newClientLocEl').value='';
-  });
-  document.getElementById('addArticleBtn').addEventListener('click',()=>{
-    const name=document.getElementById('newArticleEl').value.trim(), loc=document.getElementById('newArticleLocEl').value.trim(), course=document.getElementById('newArticleCourseEl').value;
-    if(!name)return alert("Article name is required");
-    push(ref(db,'articles'),{name,location:loc||'',course:course||''});
-    document.getElementById('newArticleEl').value=''; document.getElementById('newArticleLocEl').value=''; document.getElementById('newArticleCourseEl').value='';
-  });
-}
-
-// ── Allocation client dropdown ────────────────────────────────
-function loadAllocClientDrop(){
-  onValue(ref(db,'clients'),snap=>{
-    const sel=document.getElementById('allocClient');
-    let html='<option value="">Select Client</option>';
-    if(snap.exists())snap.forEach(c=>{const d=c.val(),lbl=d.location?`${d.name} · ${d.location}`:d.name;html+=`<option value="${c.key}">${lbl}</option>`;});
-    sel.innerHTML=html;
-  });
-}
-
-// ── Smart article picker ──────────────────────────────────────
-let pickerData=[], selKeys=new Set();
-
-function refreshPicker(){
-  if(!cachedArticleSnap){
-  console.log('Articles still loading...');
-  return;
-}
-  const sd=document.getElementById('allocStart').value, ed=document.getElementById('allocEnd').value;
-  const hint=document.getElementById('pickerHint'), pickerEl=document.getElementById('articlePicker');
-  if(!sd){hint.style.display='';pickerEl.innerHTML='';return;}
-  hint.style.display='none';
-  const startMs=new Date(sd).getTime(), endMs=ed ? new Date(ed).getTime() : startMs;
-
-  const busyKeys=new Set();
-  if(cachedAllocSnap&&cachedAllocSnap.exists()) cachedAllocSnap.forEach(c=>{
-    const a=c.val();
-    const allocStart=new Date(a.date).getTime();
-    const allocEnd=getAllocEndMs(a.endDate||'');
-    if(allocStart<=endMs && allocEnd>=startMs){
-      if(cachedArticleSnap&&cachedArticleSnap.exists()){
-        cachedArticleSnap.forEach(c=>{
-          if(c.key===a.article||c.val().name===a.article) busyKeys.add(c.key);
-        });
-      }
+      // Debug info suppressed from UI (check browser console for field diagnostics)
+    } else {
+      showDemoData('unrecognised structure');
     }
+  }, err => {
+    dbg('FIREBASE ERROR: ' + err.code + ' — ' + err.message);
+    document.getElementById('loader').innerHTML =
+      '<div style="color:#ef4444;text-align:center;padding:1rem"><b>⚠ ' + err.code + '</b><br><small style="color:#94a3b8">' + err.message + '</small><br><br><small style="color:#cbd5e1">Loading demo data…</small></div>';
+    setTimeout(() => showDemoData(err.code), 1500);
   });
-
-  pickerData=[];
-  cachedArticleSnap.forEach(c=>{
-    const data=c.val();
-    if(data&&data.name) pickerData.push({key:c.key,name:data.name,location:data.location||'',course:data.course||''});
-  });
-  console.log("Picker data count:", pickerData.length);
-  console.log('Busy keys count:', busyKeys.size);
-  selKeys.forEach(k=>{if(busyKeys.has(k))selKeys.delete(k);});
-  renderPicker(busyKeys);
-  updateSelSummary();
 }
 
-function renderPicker(busyKeys){
-  const el=document.getElementById('articlePicker');
-  if(!pickerData.length){el.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-secondary);font-size:13px;">No articles found.</div>';return;}
-  el.innerHTML=pickerData.map(a=>{
-    const isBusy=busyKeys.has(a.key), isSel=selKeys.has(a.key);
-    const sub=[a.location,a.course].filter(Boolean).join(' · ');
-    const badge=isBusy?`<span class="pick-badge busy-badge">● Busy</span>`:`<span class="pick-badge free">● Available</span>`;
-    return `<div class="pick-item${isBusy?' busy':isSel?' sel':''}" data-key="${a.key}" data-busy="${isBusy}" onclick="togglePick(this)">
-      <div class="pick-left"><span class="pick-name">${a.name}</span>${sub?`<span class="pick-sub">${sub}</span>`:''}</div>
-      ${badge}</div>`;
+function updateStats() {
+  const articles = [...new Set(allData.map(r=>r.article).filter(Boolean))];
+  const clients  = [...new Set(allData.map(r=>r.client).filter(Boolean))];
+  document.getElementById('statArticles').textContent = articles.length || '—';
+  document.getElementById('statClients').textContent  = clients.length  || '—';
+}
+
+function filtered() {
+  const q = currentSearch.toLowerCase().trim();
+  if (!q) return allData;
+  return allData.filter(r => {
+    if (currentTab === 'article') return (r.article||'').toLowerCase().includes(q);
+    if (currentTab === 'client')  return (r.client||'').toLowerCase().includes(q);
+    return Object.values(r).some(v => (v||'').toLowerCase().includes(q));
+  });
+}
+
+function render() {
+  const rows = filtered();
+  const isEmpty = rows.length === 0 && currentSearch;
+  document.getElementById('emptyState').style.display = isEmpty ? 'block' : 'none';
+
+  if (currentTab === 'client') {
+    document.getElementById('tableView').style.display = 'none';
+    document.getElementById('cardView').style.display  = 'block';
+    renderCards(rows);
+  } else {
+    document.getElementById('tableView').style.display = 'block';
+    document.getElementById('cardView').style.display  = 'none';
+    renderTable(rows);
+  }
+  document.getElementById('resultCount').textContent = `${rows.length} result${rows.length !== 1 ? 's' : ''}`;
+}
+
+function computeEffectiveStatus(r) {
+  // Auto-complete if end date is set and has passed
+  if (r.endDate) {
+    const today = new Date(); today.setHours(0,0,0,0);
+    const end = new Date(r.endDate + 'T00:00:00');
+    if (!isNaN(end) && end <= today) return 'Completed';
+  }
+  return r.status || '';
+}
+
+function renderTable(rows) {
+  const tbody = document.getElementById('tableBody');
+  if (rows.length === 0) { tbody.innerHTML = ''; return; }
+
+  // Group rows by article name
+  const byArticle = {};
+  const articleOrder = [];
+  rows.forEach(r => {
+    const key = r.article || '—';
+    if (!byArticle[key]) { byArticle[key] = []; articleOrder.push(key); }
+    byArticle[key].push(r);
+  });
+
+  tbody.innerHTML = articleOrder.map((artKey, i) => {
+    const group = byArticle[artKey];
+    const first = group[0];
+    const multi = group.length > 1;
+    const effStatus = computeEffectiveStatus(first);
+
+    // Client blocks — start date only (end date gets its own column)
+    const clientBlocks = group.map(r => `
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;${multi ? 'padding:5px 0;border-bottom:1px dashed rgba(212,220,245,0.5);' : ''}">
+        <span class="client-badge" style="flex-shrink:0">🏢 ${r.client || '—'}</span>
+        ${r.from ? `<span class="date-badge" style="font-size:11px;padding:2px 8px"><span class="date-from">📅 ${r.from}</span></span>` : '<span style="color:#cbd5e1;font-size:11px">No start date</span>'}
+        <button class="edit-date-btn" style="opacity:0.7" onclick="openDateModal(${allData.indexOf(r)})" title="Edit end date">✏️</button>
+      </div>
+    `).join('');
+
+    // End date cell — one per group (first allocation)
+    const endDateCell = (() => {
+      const r = first;
+      const today = new Date(); today.setHours(0,0,0,0);
+      if (!r.to && !r.endDate) {
+        return `<span style="color:#cbd5e1;font-size:12px">—</span>`;
+      }
+      const endISO = r.endDate || '';
+      let isPast = false;
+      if (endISO) {
+        const d = new Date(endISO + 'T00:00:00');
+        isPast = !isNaN(d) && d <= today;
+      }
+      const label = r.to || r.endDate || '';
+      return `<span class="date-badge" style="font-size:11px;padding:3px 10px;${isPast ? 'background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.3)' : ''}">
+        <span style="${isPast ? 'color:#059669' : 'color:#7c3aed'}">🏁 ${label}</span>
+      </span>`;
+    })();
+
+    // Mark Completed button
+    const isAlreadyCompleted = effStatus.toLowerCase().includes('complet');
+    const actionBtn = isAlreadyCompleted
+      ? `<span style="font-size:11px;color:#059669;font-weight:600;display:flex;align-items:center;gap:4px">✅ Done</span>`
+      : `<button class="complete-btn" onclick="markCompleted(${allData.indexOf(first)})" title="Mark as Work Completed">✔ Complete</button>`;
+
+    return `
+      <tr style="animation-delay:${Math.min(i*0.03,0.5)}s;vertical-align:top${isAlreadyCompleted ? ';opacity:0.8' : ''}">
+        <td>
+          <div class="article-name">
+            <div class="avatar" style="${avatarStyle(first.article)}">${initials(first.article)}</div>
+            <div>
+              ${first.article || '—'}
+              ${multi ? `<div style="font-size:10px;color:var(--indigo);font-weight:600;margin-top:2px">${group.length} allocations</div>` : ''}
+            </div>
+          </div>
+        </td>
+        <td>
+          <div style="display:flex;flex-direction:column;gap:2px;">
+            ${clientBlocks}
+          </div>
+        </td>
+        <td>${endDateCell}</td>
+        <td>${first.partner ? `<span class="partner-chip">⚖ ${first.partner}</span>` : '<span style="color:#cbd5e1">—</span>'}</td>
+        <td>${roleTag(first.role) || '<span style="color:#cbd5e1">—</span>'}</td>
+        <td>${statusBadge(effStatus)}</td>
+        <td>${actionBtn}</td>
+      </tr>
+    `;
   }).join('');
 }
 
-window.togglePick=function(el){
-  if(el.dataset.busy==='true')return;
-  const k=el.dataset.key;
-  if(selKeys.has(k)){selKeys.delete(k);el.classList.remove('sel');}
-  else{selKeys.add(k);el.classList.add('sel');}
-  updateSelSummary();
-};
+function renderCards(rows) {
+  const byClient = {};
+  rows.forEach(r => {
+    const key = r.client || 'Unassigned';
+    if (!byClient[key]) byClient[key] = [];
+    byClient[key].push(r);
+  });
+  const grid = document.getElementById('cardsGrid');
+  grid.innerHTML = Object.entries(byClient).map(([client, members], ci) => {
 
-function updateSelSummary(){
-  const w=document.getElementById('selWrap'), n=document.getElementById('selNames');
-  if(!selKeys.size){w.style.display='none';return;}
-  n.textContent=pickerData.filter(a=>selKeys.has(a.key)).map(a=>a.name).join(', ');
-  w.style.display='block';
+    // Sort members by start date so dividers are meaningful
+    const sorted = [...members].sort((a, b) => {
+      const da = a.startDate || a.from || '';
+      const db = b.startDate || b.from || '';
+      return da.localeCompare(db);
+    });
+
+    // Group members by their full start date — divider appears when date changes
+    let lastStartDate = null;
+    const pillRows = sorted.map(m => {
+      const idx = allData.indexOf(m);
+      const startKey = m.startDate || m.from || null;   // raw value for comparison
+      const startDisplay = m.from || m.startDate || null; // formatted label
+      let divider = '';
+      if (startKey && startKey !== lastStartDate) {
+        lastStartDate = startKey;
+        divider = `<div class="date-group-divider">
+          <span class="date-group-label">📅 ${startDisplay}</span>
+        </div>`;
+      }
+
+      const effStatus = computeEffectiveStatus(m);
+      const isCompleted = effStatus.toLowerCase().includes('complet');
+      const today = new Date(); today.setHours(0,0,0,0);
+      let endDateBadge = '';
+      if (m.to || m.endDate) {
+        const endISO = m.endDate || '';
+        let isPast = false;
+        if (endISO) { const d = new Date(endISO+'T00:00:00'); isPast = !isNaN(d) && d <= today; }
+        endDateBadge = `<span class="date-badge" style="font-size:10px;padding:2px 7px;${isPast?'background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.3)':''}">
+          <span style="${isPast?'color:#059669':'color:#7c3aed'}">🏁 ${m.to || m.endDate}</span>
+        </span>`;
+      }
+
+      const actionBtn = isCompleted
+        ? `<span style="font-size:10px;color:#059669;font-weight:700">✅</span>`
+        : `<button class="complete-btn-sm" onclick="markCompleted(${idx})" title="Mark Completed">✔</button>`;
+
+      return `${divider}
+        <div class="article-pill-row${isCompleted ? ' pill-completed' : ''}">
+          <div class="article-pill" style="flex:1 1 auto">
+            <span class="pill-dot" style="${dotStyle(m.article)}"></span>
+            <span class="pill-name">${m.article || '?'}</span>
+            ${m.role ? `<span class="pill-role">${m.role}</span>` : ''}
+          </div>
+          <div class="pill-dates" style="display:flex;flex-direction:column;gap:3px;align-items:flex-end;flex-shrink:0">
+            ${m.from ? `<span class="date-badge" style="font-size:10px;padding:2px 7px"><span class="date-from">📅 ${m.from}</span></span>` : ''}
+            ${endDateBadge}
+            ${!m.from && !m.to && !m.endDate ? '<span style="color:#cbd5e1;font-size:10px">No dates</span>' : ''}
+          </div>
+          <button class="pill-edit-btn" onclick="openDateModal(${idx})" title="Edit end date">✏️</button>
+          ${actionBtn}
+        </div>`;
+    }).join('');
+
+    const cardStatus = computeEffectiveStatus(members[0]);
+
+    return `
+    <div class="client-card" style="animation-delay:${Math.min(ci*0.05,0.6)}s">
+      <div class="client-card-header">
+        <div>
+          <div class="client-name">${client}</div>
+          <div class="client-type">${members[0]?.partner ? '⚖ ' + members[0].partner : ''}</div>
+        </div>
+        <div class="team-count">${members.length} article${members.length!==1?'s':''}</div>
+      </div>
+      <hr class="divider">
+      <div class="article-pill-list">
+        ${pillRows}
+      </div>
+      <hr class="divider" style="margin-top:10px">
+      <div class="card-footer-row">
+        <div>${statusBadge(cardStatus)}</div>
+      </div>
+    </div>
+  `}).join('');
 }
 
-document.getElementById('allocStart').addEventListener('change',refreshPicker);
-document.getElementById('allocEnd').addEventListener('change',()=>{if(document.getElementById('allocStart').value)refreshPicker();});
-
-// Live caches — populated only after login via initLiveListeners()
-let cachedArticleSnap=null, cachedClientSnap=null, cachedAllocSnap=null;
-let liveListenersInited=false;
-function initLiveListeners(){
-  if(liveListenersInited) return;
-  liveListenersInited=true;
-  onValue(ref(db,'articles'),snap=>{
-    cachedArticleSnap=snap;
-    rebuildMaps();
-    if(snap.exists()&&snap.size>0){
-      if(document.getElementById('allocStart').value) refreshPicker();
-    }
-  });
-  onValue(ref(db,'clients'),snap=>{
-    cachedClientSnap=snap;
-    rebuildMaps();
-  });
-  onValue(ref(db,'allocations'),snap=>{
-    cachedAllocSnap=snap;
-    renderAllocTable();
-    if(document.getElementById('allocStart').value) refreshPicker();
-  });
+function dotStyle(name) {
+  const idx = (name||'').charCodeAt(0) % AVATAR_COLORS.length;
+  return `background:${AVATAR_COLORS[idx][1]}`;
 }
 
-// ── Allocate ──────────────────────────────────────────────────
-document.getElementById('doAllocBtn').addEventListener('click',async()=>{
-  const sd=document.getElementById('allocStart').value;
-  const ed=document.getElementById('allocEnd').value;
-  const ck=document.getElementById('allocClient').value;
-  if(!sd)      return alert("Pick a start date");
-  if(!ck)      return alert("Select a client");
-  if(!selKeys.size) return alert("Select at least one article");
-  const btn=document.getElementById('doAllocBtn');
-  btn.textContent='Saving…';btn.disabled=true;
-  try{
-    if(selKeys.size===1){
-      await push(ref(db,'allocations'),{article:[...selKeys][0],client:ck,date:sd,endDate:ed||''});
-    }else{
-      const tid=Date.now().toString(36)+Math.random().toString(36).slice(2,6);
-      for(const ak of selKeys) await push(ref(db,'allocations'),{article:ak,client:ck,date:sd,endDate:ed||'',teamId:tid});
-    }
-    selKeys.clear();
-    document.getElementById('allocStart').value='';
-    document.getElementById('allocEnd').value='';
-    document.getElementById('allocClient').value='';
-    document.getElementById('articlePicker').innerHTML='';
-    document.getElementById('selWrap').style.display='none';
-    document.getElementById('pickerHint').style.display='';
-    alert("Allocated successfully!");
-  }catch(e){alert("Error: "+e.message);}
-  finally{btn.textContent='Allocate';btn.disabled=false;}
-});
-
-// ── View allocations table ────────────────────────────────────
-// Fetch name-resolution maps ONCE upfront, then synchronous rendering inside onValue — no more async race
-// Cached maps rebuilt whenever articles or clients change
-let cachedMaps=null;
-function rebuildMaps(){
-  if(cachedClientSnap!==null && cachedArticleSnap!==null){
-    cachedMaps=buildMaps(cachedClientSnap, cachedArticleSnap);
-    renderAllocTable();
-  }
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-btn').forEach((b,i) => {
+    b.classList.toggle('active', ['all','article','client'][i] === tab);
+  });
+  const titles = { all:'All Allocations', article:'Search by Article', client:'Client Overview' };
+  document.getElementById('tableViewTitle').textContent = titles[tab];
+  const hints = { all:'Search articles, clients, partners…', article:'Search article name…', client:'Search client name…' };
+  document.getElementById('searchInput').placeholder = hints[tab];
+  render();
 }
 
-function loadAllocTable(){
-  // Data is already live via initLiveListeners() — just render
-  renderAllocTable();
+function onSearch(val) { currentSearch = val; render(); }
+function clearSearch() {
+  document.getElementById('searchInput').value = ''; currentSearch = ''; render();
 }
 
-function renderAllocTable(){
-  if(!cachedMaps||!cachedAllocSnap) return;
-  const countEl=document.getElementById('allocCount');
-  if(!cachedAllocSnap.exists()){tbody.innerHTML='<tr><td colspan="5" class="empty">No allocations yet.</td></tr>';countEl.textContent='';return;}
+const DEMO_DATA = [
+  { article:'Arjun Menon',     client:'Sri Lakshmi Traders Pvt Ltd', partner:'CA Ramesh Varma',   role:'Senior Article', status:'Active',    startDate:'2023-01-10', endDate:'2026-01-09', _key:'demo_1', _path:'' },
+  { article:'Priya Nair',      client:'KeraTech Solutions Ltd',      partner:'CA Ramesh Varma',   role:'Article',        status:'Active',    startDate:'2024-03-01', endDate:'2027-02-28', _key:'demo_2', _path:'' },
+  { article:'Vishnu Pillai',   client:'Cochin Port Trust',           partner:'CA Deepa Krishnan', role:'Article',        status:'Active',    startDate:'2023-06-15', endDate:'2026-06-14', _key:'demo_3', _path:'' },
+  { article:'Divya Sharma',    client:'KeraTech Solutions Ltd',      partner:'CA Ramesh Varma',   role:'Junior Article', status:'Active',    startDate:'2024-08-01',                       _key:'demo_4', _path:'' },
+  { article:'Rahul Das',       client:'Malabar Gold & Diamonds',     partner:'CA Deepa Krishnan', role:'Senior Article', status:'Active',    startDate:'2022-04-04', endDate:'2025-04-03', _key:'demo_5', _path:'' },
+  { article:'Sreelakshmi V',   client:'Southern Railway Canteen',    partner:'CA Suresh Nambiar', role:'Article',        status:'Completed', startDate:'2021-09-01', endDate:'2024-08-31', _key:'demo_6', _path:'' },
+  { article:'Akash Kumar',     client:'Malabar Gold & Diamonds',     partner:'CA Deepa Krishnan', role:'Article',        status:'Active',    startDate:'2024-02-12',                       _key:'demo_7', _path:'' },
+  { article:'Anjali Mohan',    client:'Cochin Port Trust',           partner:'CA Deepa Krishnan', role:'Junior Article', status:'Active',    startDate:'2023-11-01', endDate:'2026-10-31', _key:'demo_8', _path:'' },
+  { article:'Mohammed Ashraf', client:'Sri Lakshmi Traders Pvt Ltd', partner:'CA Ramesh Varma',  role:'Article',        status:'Pending',   startDate:'2025-07-01',                       _key:'demo_9', _path:'' },
+  { article:'Nithya Raghav',   client:'Quilon Cashews Export',       partner:'CA Suresh Nambiar', role:'Senior Article', status:'Active',    startDate:'2022-01-15', endDate:'2025-01-14', _key:'demo_10', _path:'' },
+  { article:'Tijo Thomas',     client:'Quilon Cashews Export',       partner:'CA Suresh Nambiar', role:'Article',        status:'Active',    startDate:'2024-05-20', endDate:'2027-05-19', _key:'demo_11', _path:'' },
+  { article:'Reshma Pillai',   client:'Trivandrum Medical Centre',   partner:'CA Suresh Nambiar', role:'Article',        status:'Active',    startDate:'2023-10-10',                       _key:'demo_12', _path:'' },
+];
 
-  const allocs=[];
-  cachedAllocSnap.forEach(c=>{
-    allocs.push({key:c.key,...c.val()});
-  });
-  countEl.textContent=`${allocs.length} record${allocs.length!==1?'s':''}`;
+window.switchTab = switchTab;
+window.onSearch  = onSearch;
+window.clearSearch = clearSearch;
 
-  // Group by teamId (team allocations) or client+date (same client same date)
-  const groups={};
-  allocs.forEach(d=>{
-    const gk=d.teamId ? `team_${d.teamId}` : `solo_${d.client}_${d.date}_${d.endDate||''}`;
-    if(!groups[gk]) groups[gk]={client:d.client,date:d.date,endDate:d.endDate||'',articles:[],keys:[],status:d.status||''};
-    groups[gk].articles.push(d.article);
-    groups[gk].keys.push(d.key);
-    // If any record in the group has status completed, treat group as completed
-    if(d.status==='completed') groups[gk].status='completed';
-  });
 
-  let html='';
-  Object.values(groups).forEach(g=>{
-    const client=cachedMaps.rc(g.client);
-    const articleNames=g.articles.map(a=>cachedMaps.ra(a)).join(', ');
-    const isCompleted=g.status==='completed';
-    const statusCell=isCompleted
-      ? `<span class="status-completed">✓ Completed</span>`
-      : `<span class="status-active">● Active</span>`;
-    const completeBtn=isCompleted
-      ? `<span class="status-completed" style="padding:6px 13px;border-radius:6px;font-size:12px;">✓ Completed</span>`
-      : `<button class="btn-complete complete-btn" data-keys="${g.keys.join(',')}">✓ Mark Complete</button>`;
-    html+=`<tr>
-      <td>${articleNames}</td>
-      <td>${client}</td>
-      <td><span class="date-badge">${fmtPeriod(g.date,g.endDate)}</span></td>
-      <td>${statusCell}</td>
-      <td style="text-align:right;display:flex;gap:6px;justify-content:flex-end;align-items:center;">${completeBtn}<button class="danger del-btn" data-keys="${g.keys.join(',')}">Delete</button></td>
-    </tr>`;
-  });
-  tbody.innerHTML=html;
+// ── DATE EDITOR ──────────────────────────────────────────────────────────────
+let editingRow = null;  // the full row object currently being edited
+
+function openDateModal(rowIndex) {
+  editingRow = allData[rowIndex];
+  if (!editingRow) return;
+
+  document.getElementById('modalArticleName').textContent =
+    (editingRow.article || editingRow.client || 'Unknown') +
+    (editingRow.client ? ' → ' + editingRow.client : '');
+
+  // Show start date as read-only (from Firebase)
+  const startDisplay = document.getElementById('modalStartDateDisplay');
+  startDisplay.textContent = editingRow.from ? '📅 ' + editingRow.from : '— Not set in Firebase';
+  startDisplay.style.color = editingRow.from ? 'var(--indigo)' : 'var(--text-muted)';
+
+  // Pre-fill end date
+  document.getElementById('modalEndDate').value = isoDate(editingRow.endDate || editingRow.to) || '';
+  document.getElementById('modalStatus').textContent = '';
+  document.getElementById('modalStatus').className = 'modal-status';
+  document.getElementById('dateModal').style.display = 'flex';
 }
 
-tbody.addEventListener('click',e=>{
-  const delBtn=e.target.closest('.del-btn');
-  if(delBtn){
-    const keys=delBtn.dataset.keys.split(',');
-    if(confirm(keys.length>1?`Delete team allocation (${keys.length} members)?`:'Delete this allocation?'))
-      keys.forEach(k=>remove(ref(db,'allocations/'+k)));
+function closeDateModal() {
+  document.getElementById('dateModal').style.display = 'none';
+  editingRow = null;
+}
+
+// Convert "Jan 2023" or "2023-01-15" to YYYY-MM-DD for <input type=date>
+function isoDate(str) {
+  if (!str) return '';
+  // Already ISO
+  if (/^\d{4}-\d{2}-\d{2}$/.test(str.trim())) return str.trim();
+  // "Jan 2023" → try to parse
+  const d = new Date(str);
+  if (!isNaN(d)) return d.toISOString().slice(0,10);
+  // "2023" → Jan 1st of that year
+  if (/^\d{4}$/.test(str.trim())) return str.trim() + '-01-01';
+  return '';
+}
+
+// Format ISO date nicely for display: "2023-06-15" → "15 Jun 2023"
+function fmtDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso + 'T00:00:00');
+  if (isNaN(d)) return iso;
+  return d.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+}
+
+async function saveDates() {
+  const endVal   = document.getElementById('modalEndDate').value;
+  const statusEl = document.getElementById('modalStatus');
+
+  const startIso = isoDate(editingRow.startDate || editingRow.from) || '';
+  if (endVal && startIso && endVal < startIso) {
+    statusEl.textContent = '⚠ End date must be after start date.';
+    statusEl.className = 'modal-status err';
     return;
   }
-  const compBtn=e.target.closest('.complete-btn');
-  if(compBtn){
-    const keys=compBtn.dataset.keys.split(',');
-    if(confirm('Mark this allocation as completed?')){
-      Promise.all(keys.map(k=>update(ref(db,'allocations/'+k),{status:'completed'})))
-        .catch(e=>alert('Error: '+e.message));
-    }
-  }
-});
 
-// ── Article user view ─────────────────────────────────────────
-function loadMyAllocs(name){
-  Promise.all([get(ref(db,'clients')),get(ref(db,'articles'))]).then(([cs,as])=>{
-    const maps=buildMaps(cs,as);
-    let myKey=null;
-    if(as.exists())as.forEach(c=>{if((c.val().name||'').toLowerCase().trim()===(name||'').toLowerCase().trim())myKey=c.key;});
-    onValue(ref(db,'allocations'),snap=>{
-      const all=[];
-      if(snap.exists())snap.forEach(c=>all.push(c.val()));
-      const mine=all.filter(d=>d.article===myKey);
-      mine.sort((a,b)=>new Date(b.date)-new Date(a.date));
-      const seen=new Set(); let html='';
-      mine.forEach(d=>{
-        const gk=d.teamId?d.teamId:`${d.client}__${d.date}__${d.endDate||''}`;
-        if(seen.has(gk))return;seen.add(gk);
-        html+=`<div class="alloc-card"><div><strong>${maps.rc(d.client)}</strong></div><div class="date-badge">${fmtPeriod(d.date,d.endDate)}</div></div>`;
-      });
-      myDataDiv.innerHTML=html||'<div class="empty">No allocations found.</div>';
-    });
-  });
+  statusEl.textContent = '⏳ Saving to Firebase…';
+  statusEl.className = 'modal-status saving';
+
+  try {
+    let fbPath = '';
+    if (editingRow._path && editingRow._key) {
+      fbPath = editingRow._path + '/' + editingRow._key;
+    } else if (editingRow._key) {
+      fbPath = editingRow._key;
+    } else {
+      throw new Error('Cannot determine Firebase path for this record. Key missing.');
+    }
+
+    const updates = {};
+    if (endVal) updates.endDate = endVal;
+    else updates.endDate = null;
+
+    await update(ref(db, fbPath), updates);
+
+    // Update local data so UI refreshes immediately
+    editingRow.to      = endVal ? fmtDate(endVal) : '';
+    editingRow.endDate = endVal || '';
+
+    statusEl.textContent = '✅ Saved successfully!';
+    statusEl.className = 'modal-status ok';
+    render();
+
+    setTimeout(closeDateModal, 1200);
+  } catch(e) {
+    console.error('saveDates error:', e);
+    statusEl.textContent = '❌ ' + (e.message || 'Save failed');
+    statusEl.className = 'modal-status err';
+  }
 }
+
+window.openDateModal  = openDateModal;
+window.closeDateModal = closeDateModal;
+window.saveDates      = saveDates;
+
+// ── MARK COMPLETED ────────────────────────────────────────────────────────────
+async function markCompleted(rowIndex) {
+  const row = allData[rowIndex];
+  if (!row) return;
+
+  // Optimistically update local data
+  row.status = 'Completed';
+  render();
+
+  // Persist to Firebase if path available
+  try {
+    let fbPath = '';
+    if (row._path && row._key) fbPath = row._path + '/' + row._key;
+    else if (row._key) fbPath = row._key;
+    if (fbPath) {
+      await update(ref(db, fbPath), { status: 'Completed' });
+    }
+  } catch(e) {
+    console.error('markCompleted error:', e);
+  }
+}
+window.markCompleted = markCompleted;
+// ─────────────────────────────────────────────────────────────────────────────
+
+loadData();
 </script>
 </body>
 </html>
