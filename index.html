@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Varma & Co — Article Allocation Dashboard</title>
+<title>Varma & Varma — Article Allocation Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Lora:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
 
 <style>
@@ -724,6 +724,189 @@
   /* ── COMPLETED PILL STATE ── */
   .pill-completed { opacity: 0.65; }
   .pill-completed .pill-name { text-decoration: line-through; color: var(--text-muted); }
+
+  /* ── HISTORY ICON BUTTON ── */
+  .history-icon-btn {
+    position: relative;
+    background: var(--bg2);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    width: 38px; height: 38px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 17px;
+    transition: all 0.2s; color: var(--text-secondary);
+  }
+  .history-icon-btn:hover {
+    border-color: var(--indigo);
+    background: rgba(79,70,229,0.08);
+    color: var(--indigo);
+    transform: scale(1.05);
+  }
+  .history-badge {
+    position: absolute; top: -5px; right: -5px;
+    background: linear-gradient(135deg, var(--indigo), var(--violet));
+    color: #fff; font-size: 9px; font-weight: 800;
+    border-radius: 10px; min-width: 16px; height: 16px;
+    display: flex; align-items: center; justify-content: center;
+    padding: 0 3px; border: 1.5px solid #fff;
+    font-family: var(--font-body);
+  }
+
+  /* ── HISTORY PANEL (slide-in drawer) ── */
+  #historyOverlay {
+    position: fixed; inset: 0; z-index: 900;
+    background: rgba(15,23,42,0.4);
+    backdrop-filter: blur(4px);
+    display: none; animation: fadeIn 0.2s ease;
+  }
+  #historyPanel {
+    position: fixed; top: 0; right: 0; bottom: 0; z-index: 901;
+    width: 100%; max-width: 620px;
+    background: var(--surface);
+    border-left: 1.5px solid var(--border);
+    box-shadow: -12px 0 50px rgba(79,70,229,0.12);
+    display: flex; flex-direction: column;
+    animation: slideInRight 0.28s cubic-bezier(0.25,0.46,0.45,0.94);
+    overflow: hidden;
+  }
+  @keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to   { transform: translateX(0);   opacity: 1; }
+  }
+  .history-panel-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.3rem 1.6rem 1rem;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(90deg, rgba(79,70,229,0.04), rgba(124,58,237,0.03));
+    flex-shrink: 0;
+  }
+  .history-panel-title {
+    font-family: var(--font-display);
+    font-size: 19px; font-weight: 700; color: var(--text-hero);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .history-panel-sub {
+    font-size: 12px; color: var(--text-muted); margin-top: 3px; font-weight: 400;
+  }
+  .history-close-btn {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 8px; width: 32px; height: 32px;
+    font-size: 14px; cursor: pointer; color: var(--text-muted);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s; flex-shrink: 0;
+  }
+  .history-close-btn:hover { background: rgba(239,68,68,0.1); color: var(--danger); border-color: rgba(239,68,68,0.3); }
+  .history-panel-body {
+    flex: 1; overflow-y: auto; padding: 1.2rem 1.4rem;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .history-empty {
+    text-align: center; padding: 3rem 2rem; color: var(--text-muted);
+  }
+  .history-empty-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.4; }
+  .history-empty-text { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
+  .history-empty-sub  { font-size: 12px; margin-top: 5px; }
+
+  /* ── HISTORY ITEM CARD ── */
+  .history-item {
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 1rem 1.1rem;
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    animation: slideUp 0.25s ease both;
+  }
+  .history-item:hover {
+    border-color: rgba(79,70,229,0.25);
+    box-shadow: var(--shadow-sm);
+  }
+  .history-item-left { flex: 1; min-width: 0; }
+  .history-item-name {
+    font-weight: 700; font-size: 14px; color: var(--text-hero);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .history-item-client {
+    font-size: 12.5px; color: var(--text-secondary); margin-top: 5px;
+    display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  }
+  .history-item-meta {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 7px;
+  }
+  .history-item-right {
+    display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex-shrink: 0;
+  }
+  .history-completed-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: rgba(16,185,129,0.1);
+    border: 1px solid rgba(16,185,129,0.3);
+    border-radius: 20px; padding: 3px 10px;
+    font-size: 11px; font-weight: 700; color: #059669;
+    white-space: nowrap;
+  }
+  .history-time-label {
+    font-size: 10.5px; color: var(--text-muted); font-weight: 500; white-space: nowrap;
+  }
+  .undo-btn {
+    background: linear-gradient(135deg, rgba(79,70,229,0.1), rgba(124,58,237,0.1));
+    border: 1.5px solid rgba(79,70,229,0.3);
+    border-radius: 8px; padding: 5px 13px;
+    font-family: var(--font-body); font-size: 12px; font-weight: 700;
+    color: var(--indigo); cursor: pointer;
+    transition: all 0.18s; white-space: nowrap;
+  }
+  .undo-btn:hover {
+    background: linear-gradient(135deg, rgba(79,70,229,0.2), rgba(124,58,237,0.2));
+    border-color: var(--indigo);
+    box-shadow: 0 3px 10px rgba(79,70,229,0.2);
+    transform: translateY(-1px);
+  }
+  .undo-expired {
+    font-size: 10.5px; color: var(--text-muted); font-weight: 500;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 7px; padding: 4px 10px; white-space: nowrap;
+  }
+
+  /* ── UNDO BUTTON (inline in dashboard table) ── */
+  .undo-inline-btn {
+    background: linear-gradient(135deg, rgba(79,70,229,0.08), rgba(124,58,237,0.08));
+    border: 1.5px solid rgba(79,70,229,0.25);
+    border-radius: 8px; padding: 5px 11px;
+    font-family: var(--font-body); font-size: 11.5px; font-weight: 700;
+    color: var(--indigo); cursor: pointer;
+    transition: all 0.18s; white-space: nowrap;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .undo-inline-btn:hover {
+    background: linear-gradient(135deg, rgba(79,70,229,0.18), rgba(124,58,237,0.18));
+    border-color: var(--indigo);
+    box-shadow: 0 3px 10px rgba(79,70,229,0.2);
+    transform: translateY(-1px);
+  }
+
+  /* ── COMING SOON TOAST ── */
+  #comingSoonToast {
+    position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(20px);
+    z-index: 9999;
+    background: linear-gradient(135deg, #1e1b4b, #3730a3);
+    color: #fff;
+    border-radius: 16px;
+    padding: 14px 24px;
+    box-shadow: 0 12px 40px rgba(79,70,229,0.35), 0 4px 12px rgba(0,0,0,0.2);
+    display: flex; align-items: center; gap: 14px;
+    font-size: 14px; font-weight: 600;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    border: 1px solid rgba(255,255,255,0.12);
+    min-width: 280px;
+  }
+  #comingSoonToast.show {
+    opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0);
+  }
+  .toast-icon { font-size: 26px; flex-shrink: 0; }
+  .toast-title { font-size: 14px; font-weight: 700; letter-spacing: -0.01em; }
+  .toast-sub { font-size: 11.5px; font-weight: 400; color: rgba(255,255,255,0.65); margin-top: 2px; }
+
 </style>
 </head>
 <body>
@@ -732,7 +915,7 @@
   <div class="logo">
     <div class="logo-mark">V</div>
     <div>
-      <div class="logo-text">Varma & Co.</div>
+      <div class="logo-text">Varma & Varma</div>
       <div class="logo-sub">Chartered Accountants</div>
     </div>
   </div>
@@ -740,6 +923,10 @@
     <div class="live-badge">
       <div class="live-dot"></div> Live Data
     </div>
+    <button class="history-icon-btn" onclick="showHistoryComingSoon()" title="History — Coming Soon" style="position:relative">
+      🕓
+      <span style="position:absolute;top:-7px;left:-8px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;font-size:7.5px;font-weight:800;border-radius:5px;padding:1px 4px;letter-spacing:0.04em;border:1.5px solid #fff;white-space:nowrap;pointer-events:none">SOON</span>
+    </button>
     <div class="dev-badge">by <span>nihalshalu</span></div>
   </div>
 </header>
@@ -810,9 +997,8 @@
           <thead>
             <tr>
               <th>Article</th>
-              <th colspan="4">Client · Start Date · End Date · Status · Action</th>
-              <th>Partner</th>
-              <th>Role</th>
+              <th colspan="4">Client &amp; Location · Start Date · End Date · Status · Action</th>
+              <th>Remark</th>
             </tr>
           </thead>
           <tbody id="tableBody"></tbody>
@@ -835,6 +1021,7 @@
       <div class="empty-sub">Try a different name or clear the search</div>
     </div>
   </div>
+
 
 <!-- DATE EDITOR MODAL -->
 <div id="dateModal" style="display:none" onclick="if(event.target===this)closeDateModal()">
@@ -870,12 +1057,44 @@
 </main>
 
 <footer>
-  Developed by <span>nihalshalu</span> · Varma & Co. Article Allocation System
+  Developed by <span>nihalshalu</span> · Varma & Varma Article Allocation System
 </footer>
+
+<!-- COMING SOON TOAST -->
+<div id="comingSoonToast">
+  <div class="toast-icon">🔒</div>
+  <div>
+    <div class="toast-title">History — Coming Soon</div>
+    <div class="toast-sub">This feature is under development. Stay tuned!</div>
+  </div>
+</div>
+
+<!-- HISTORY OVERLAY -->
+<div id="historyOverlay" onclick="closeHistoryPanel()"></div>
+
+<!-- HISTORY PANEL (slide-in drawer) — COMING SOON -->
+<div id="historyPanel" style="display:none;">
+  <div class="history-panel-header">
+    <div>
+      <div class="history-panel-title">🕓 Completion History</div>
+      <div class="history-panel-sub">Feature under development</div>
+    </div>
+    <button class="history-close-btn" onclick="closeHistoryPanel()">✕</button>
+  </div>
+  <div class="history-panel-body" id="historyPanelBody" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:3rem 2rem;text-align:center">
+    <div style="font-size:64px;margin-bottom:1.2rem;filter:drop-shadow(0 4px 16px rgba(79,70,229,0.25))">🔒</div>
+    <div style="font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--text-hero);margin-bottom:8px">Coming Soon</div>
+    <div style="font-size:13px;color:var(--text-muted);max-width:300px;line-height:1.6;margin-bottom:1.6rem">The History feature is currently under development. Your completed allocations are being tracked and will appear here soon.</div>
+    <div style="display:flex;align-items:center;gap:10px;background:rgba(79,70,229,0.06);border:1.5px solid rgba(79,70,229,0.15);border-radius:14px;padding:12px 20px">
+      <div style="width:8px;height:8px;border-radius:50%;background:var(--success);animation:pulse 2s infinite;flex-shrink:0"></div>
+      <span style="font-size:12px;color:var(--indigo);font-weight:600">Completion tracking is active in the background</span>
+    </div>
+  </div>
+</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getDatabase, ref, onValue, update, set, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAN4QEBtD6ua2gWhKh__tmxrpARozKaCz0",
@@ -891,6 +1110,7 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 let allData = [];
+let totalArticlesCount = null; // fetched directly from articles node
 let currentTab = 'all';
 let currentSearch = '';
 
@@ -971,6 +1191,8 @@ function parseData(snapshot) {
       const n = a.name || a.articleName || a.article_name || a.article || '';
       if (n) articleLookup[id] = n;
     });
+    // Store total article count directly from the articles node
+    totalArticlesCount = Object.values(raw.articles).filter(Boolean).length;
   }
   const locationLookup = {};     // clientId   → location string
   const locationByName = {};     // clientName → location string
@@ -1177,23 +1399,181 @@ function dbg(msg) { console.log('[VarmaDB]', msg); }
 function showDemoData(reason) {
   dbg('Loading demo data. Reason: ' + reason);
   allData = DEMO_DATA.map(d => normalize(d, d._key, d._path));
+  // Filter out items already in history
+  const hist = getHistory();
+  allData = allData.filter(r => !hist.some(h => h._key === r._key && h._path === r._path));
   updateStats(); render();
+  updateHistoryBadge();
   document.getElementById('loader').style.display = 'none';
   document.getElementById('tableWrap').style.display = 'block';
+}
+
+// ── MIGRATE COMPLETED ALLOCATIONS → HISTORY NODE ─────────────────────────────
+// Scans all allocations in Firebase. Any with status 'Completed' (or 'completed')
+// that are NOT already in history/ get moved there and deleted from their original path.
+async function migrateCompletedToHistory(raw) {
+  if (!raw) return;
+
+  // Collect already-migrated history keys so we don't double-migrate
+  const existingHistoryKeys = new Set(
+    raw.history ? Object.keys(raw.history) : []
+  );
+
+  // Build lookup maps for resolving push keys → names
+  const articleLookup = {};
+  const clientLookup  = {};
+  const partnerLookup = {};
+  const locationLookup = {};
+  const locationByName = {};
+
+  if (raw.articles && typeof raw.articles === 'object') {
+    Object.entries(raw.articles).forEach(([id, a]) => {
+      if (!a) return;
+      const n = a.name || a.articleName || a.article_name || a.article || '';
+      if (n) articleLookup[id] = n;
+    });
+  }
+  if (raw.clients && typeof raw.clients === 'object') {
+    Object.entries(raw.clients).forEach(([id, c]) => {
+      if (!c) return;
+      const n = c.name || c.clientName || c.client_name || c.client || '';
+      if (n) clientLookup[id] = n;
+      const loc = c.location || c.clientLocation || c.city || c.place || c.address || '';
+      if (loc) locationLookup[id] = loc;
+      if (loc && n) locationByName[n.trim().toLowerCase()] = loc;
+    });
+  }
+  if (raw.partners && typeof raw.partners === 'object') {
+    Object.entries(raw.partners).forEach(([id, p]) => {
+      if (!p) return;
+      const n = p.name || p.partnerName || p.partner_name || p.partner || '';
+      if (n) partnerLookup[id] = n;
+    });
+  }
+
+  function res(val, lookup) {
+    if (!val || typeof val !== 'string') return val || '';
+    const v = val.trim();
+    return (lookup && /^-[A-Za-z0-9_-]{19,}$/.test(v) && lookup[v]) ? lookup[v] : v;
+  }
+  function resLocation(clientVal, directLoc) {
+    if (directLoc) return directLoc;
+    if (!clientVal || typeof clientVal !== 'string') return '';
+    const v = clientVal.trim();
+    if (/^-[A-Za-z0-9_-]{19,}$/.test(v) && locationLookup[v]) return locationLookup[v];
+    return locationByName[v.toLowerCase()] || '';
+  }
+
+  const toMigrate = []; // { key, originalPath, record }
+
+  function checkAndCollect(alloc, key, path, articleName) {
+    if (!alloc || typeof alloc !== 'object') return;
+    const status = (alloc.status || alloc.allocationStatus || '').toLowerCase();
+    if (!status.includes('complet')) return;
+    if (existingHistoryKeys.has(key)) return; // already in history
+
+    const rawClient  = alloc.client  || alloc.clientName  || alloc.client_name  || alloc.organization || alloc.company || '';
+    const rawPartner = alloc.partner || alloc.partnerName || alloc.partner_name || alloc.supervisor   || alloc.manager || '';
+    const rawLoc     = alloc.location || alloc.clientLocation || alloc.place || alloc.city || alloc.address || '';
+
+    toMigrate.push({
+      key,
+      originalPath: path + '/' + key,
+      record: {
+        article:      articleName || res(alloc.article || alloc.articleName || alloc.name || '', articleLookup),
+        client:       res(rawClient, clientLookup),
+        partner:      res(rawPartner, partnerLookup),
+        location:     resLocation(rawClient, rawLoc),
+        role:         alloc.role || alloc.designation || alloc.position || '',
+        status:       'Completed',
+        from:         alloc.from || alloc.fromDate || alloc.startDate || '',
+        to:           alloc.to   || alloc.toDate   || alloc.endDate   || '',
+        startDate:    alloc.startDate || alloc.fromDate || alloc.from || '',
+        endDate:      alloc.endDate   || alloc.toDate   || alloc.to   || '',
+        _originalPath: path + '/' + key,
+        _completedAt:  alloc._completedAt || new Date().toISOString()
+      }
+    });
+  }
+
+  // Walk allocations node (same structure patterns as parseData)
+  if (raw.allocations && typeof raw.allocations === 'object') {
+    Object.entries(raw.allocations).forEach(([k, r]) => {
+      if (!r) return;
+      if (r.allocations && typeof r.allocations === 'object') {
+        const artName = res(r.name || r.article || k, articleLookup);
+        Object.entries(r.allocations).forEach(([ak, alloc]) => {
+          checkAndCollect({ article: artName, ...alloc }, ak, 'allocations/' + k + '/allocations', artName);
+        });
+      } else {
+        checkAndCollect(r, k, 'allocations', res(r.name || r.article || k, articleLookup));
+      }
+    });
+  }
+
+  if (toMigrate.length === 0) return;
+  dbg(`Migrating ${toMigrate.length} completed allocation(s) to history node…`);
+
+  for (const item of toMigrate) {
+    try {
+      await set(ref(db, 'history/' + item.key), item.record);
+      await remove(ref(db, item.originalPath));
+      dbg(`Migrated: ${item.originalPath} → history/${item.key}`);
+    } catch(e) {
+      console.error('Migration error for', item.key, e);
+    }
+  }
 }
 
 function loadData() {
   dbg('Connecting to Firebase...');
   const rootRef = ref(db, '/');
-  onValue(rootRef, snap => {
+  onValue(rootRef, async snap => {
     dbg('onValue fired. exists=' + snap.exists());
     if (!snap.exists()) { showDemoData('empty database'); return; }
     const raw = snap.val();
     dbg('Root keys: ' + JSON.stringify(Object.keys(raw || {})));
+
+    // Sync Firebase history node → localStorage so history panel stays accurate
+    if (raw.history && typeof raw.history === 'object') {
+      const fbHistItems = Object.entries(raw.history)
+        .filter(([, v]) => v)
+        .map(([k, v]) => ({
+          article:       v.article      || '',
+          client:        v.client       || '',
+          partner:       v.partner      || '',
+          location:      v.location     || '',
+          role:          v.role         || '',
+          status:        'Completed',
+          from:          v.from         || '',
+          to:            v.to           || '',
+          startDate:     v.startDate    || '',
+          endDate:       v.endDate      || '',
+          _key:          k,
+          _path:         'history',
+          _originalPath: v._originalPath || '',
+          _completedAt:  v._completedAt  || ''
+        }));
+      fbHistItems.sort((a, b) => {
+        const ta = a._completedAt ? new Date(a._completedAt).getTime() : 0;
+        const tb = b._completedAt ? new Date(b._completedAt).getTime() : 0;
+        return tb - ta; // newest first
+      });
+      saveHistory(fbHistItems);
+    }
+
+    // Migrate any completed allocations from allocations node → history node
+    await migrateCompletedToHistory(raw);
+
     const rows = parseData(snap);
     dbg('Parsed rows: ' + rows.length);
     if (rows.length > 0) {
-      allData = rows; updateStats(); render();
+      // Filter out items already in history (matched by _originalPath key)
+      const hist = getHistory();
+      const histKeys = new Set(hist.map(h => h._key));
+      allData = rows.filter(r => !histKeys.has(r._key));
+      updateStats(); render();
+      updateHistoryBadge();
       document.getElementById('loader').style.display = 'none';
       document.getElementById('tableWrap').style.display = 'block';
 
@@ -1210,12 +1590,15 @@ function loadData() {
 }
 
 function updateStats() {
-  const articles = [...new Set(allData.map(r=>r.article).filter(Boolean))];
+  // Total articles: prefer direct count from articles node, fallback to unique names in allData
+  const artCount = totalArticlesCount !== null
+    ? totalArticlesCount
+    : [...new Set(allData.map(r=>r.article).filter(Boolean))].length;
   const clients  = [...new Set(allData.map(r => {
     const loc = r.location || '';
     return loc ? (r.client||'') + '|||' + loc : (r.client||'');
   }).filter(Boolean))];
-  document.getElementById('statArticles').textContent = articles.length || '—';
+  document.getElementById('statArticles').textContent = artCount || '—';
   document.getElementById('statClients').textContent  = clients.length  || '—';
 }
 
@@ -1294,10 +1677,15 @@ function renderTable(rows) {
         </span>`;
       }
 
-      // Complete button per allocation
+      // Complete button per allocation — only show when a client allocation exists
+      const hasAllocation = !!(r.client);
       const actionBtn = isCompleted
-        ? `<span style="font-size:11px;color:#059669;font-weight:600;display:flex;align-items:center;gap:4px">✅ Done</span>`
-        : `<button class="complete-btn" onclick="markCompleted(${idx})" title="Mark as Work Completed">✔ Complete</button>`;
+        ? (r._key && r._path
+            ? `<button class="undo-inline-btn" onclick="undoCompleted('${r._key}','${r._path}')" title="Undo completion">↩ Undo</button>`
+            : `<span style="font-size:11px;color:#059669;font-weight:600;display:flex;align-items:center;gap:4px">✅ Done</span>`)
+        : hasAllocation
+          ? `<button class="complete-btn" onclick="markCompleted(${idx})" title="Mark as Work Completed">✔ Complete</button>`
+          : `<span style="font-size:11px;color:#cbd5e1">—</span>`;
 
       const borderStyle = multi && ri < group.length - 1
         ? 'border-bottom:1px dashed rgba(212,220,245,0.7);padding-bottom:8px;margin-bottom:8px'
@@ -1305,7 +1693,10 @@ function renderTable(rows) {
 
       return `<div style="${borderStyle};display:grid;grid-template-columns:1fr auto auto auto;align-items:center;gap:10px;flex-wrap:wrap">
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-          <span class="client-badge" style="flex-shrink:0">🏢 ${r.client || '—'}</span>
+          <div style="display:flex;flex-direction:column;gap:2px;flex-shrink:0">
+            <span class="client-badge">🏢 ${r.client || '—'}</span>
+            ${r.location ? `<span style="font-size:11px;color:var(--indigo);font-weight:500;padding-left:4px">📍 ${r.location}</span>` : ''}
+          </div>
           ${r.from ? `<span class="date-badge" style="font-size:11px;padding:2px 8px"><span class="date-from">📅 ${r.from}</span></span>` : '<span style="color:#cbd5e1;font-size:11px">No start date</span>'}
           <button class="edit-date-btn" style="opacity:0.7" onclick="openDateModal(${idx})" title="Edit end date">✏️</button>
         </div>
@@ -1331,8 +1722,7 @@ function renderTable(rows) {
             ${allocationRows}
           </div>
         </td>
-        <td>${first.partner ? `<span class="partner-chip">⚖ ${first.partner}</span>` : '<span style="color:#cbd5e1">—</span>'}</td>
-        <td>${roleTag(first.role) || '<span style="color:#cbd5e1">—</span>'}</td>
+        <td></td>
       </tr>
     `;
   }).join('');
@@ -1389,9 +1779,14 @@ function renderCards(rows) {
         </span>`;
       }
 
+      const hasAllocation = !!(m.client);
       const actionBtn = isCompleted
-        ? `<span style="font-size:10px;color:#059669;font-weight:700">✅</span>`
-        : `<button class="complete-btn-sm" onclick="markCompleted(${idx})" title="Mark Completed">✔</button>`;
+        ? (m._key && m._path
+            ? `<button class="undo-inline-btn" style="font-size:10.5px;padding:4px 9px" onclick="undoCompleted('${m._key}','${m._path}')" title="Undo completion">↩ Undo</button>`
+            : `<span style="font-size:10px;color:#059669;font-weight:700">✅</span>`)
+        : hasAllocation
+          ? `<button class="complete-btn-sm" onclick="markCompleted(${idx})" title="Mark Completed">✔</button>`
+          : ``;
 
       return `${divider}
         <div class="article-pill-row${isCompleted ? ' pill-completed' : ''}">
@@ -1575,31 +1970,260 @@ window.openDateModal  = openDateModal;
 window.closeDateModal = closeDateModal;
 window.saveDates      = saveDates;
 
+// ── HISTORY SYSTEM ────────────────────────────────────────────────────────────
+// History stored in localStorage: array of { ...rowData, _completedAt: ISO timestamp }
+const HISTORY_KEY = 'varma_completion_history';
+const UNDO_WINDOW_MS = 2 * 24 * 60 * 60 * 1000; // 2 days in ms
+
+function getHistory() {
+  try {
+    return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+  } catch { return []; }
+}
+
+function saveHistory(arr) {
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(arr));
+}
+
+function addToHistory(row) {
+  const hist = getHistory();
+  // Avoid duplicate _key entries — remove old if re-completing
+  const filtered = hist.filter(h => !(h._key === row._key && h._path === row._path));
+  filtered.unshift({ ...row, _completedAt: new Date().toISOString() });
+  saveHistory(filtered);
+}
+
+function removeFromHistory(key, path) {
+  const hist = getHistory().filter(h => !(h._key === key && h._path === path));
+  saveHistory(hist);
+}
+
+function isUndoAvailable(completedAt) {
+  if (!completedAt) return false;
+  return (Date.now() - new Date(completedAt).getTime()) < UNDO_WINDOW_MS;
+}
+
+function timeAgo(iso) {
+  if (!iso) return '';
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins  = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days  = Math.floor(diff / 86400000);
+  if (mins < 1)  return 'Just now';
+  if (mins < 60) return `${mins}m ago`;
+  if (hours < 24) return `${hours}h ago`;
+  return `${days}d ago`;
+}
+
+
+
 // ── MARK COMPLETED ────────────────────────────────────────────────────────────
 async function markCompleted(rowIndex) {
   const row = allData[rowIndex];
   if (!row) return;
 
-  // Optimistically update local data
-  row.status = 'Completed';
-  render();
+  // Guard: only complete rows that have an actual allocation (must have a client and a valid path)
+  if (!row.client) {
+    console.warn('markCompleted blocked — no client on this row:', row);
+    return;
+  }
+  // Must have a proper allocation key (not just an article-node entry)
+  const fbPath = (row._path && row._key) ? row._path + '/' + row._key : (row._key || '');
+  if (!fbPath) {
+    console.warn('markCompleted blocked — no Firebase path for row:', row);
+    return;
+  }
 
-  // Persist to Firebase if path available
+  const completedAt = new Date().toISOString();
+
+  // Save to local history store
+  addToHistory(row);
+
+  // Remove from allData so it disappears from main dashboard
+  allData.splice(rowIndex, 1);
+  updateStats();
+  render();
+  updateHistoryBadge();
+
+  // Persist to Firebase: write full record to history/<key>, remove from original path
   try {
+    const historyKey = row._key || ('hist_' + Date.now());
+    const historyRecord = {
+      article:     row.article    || '',
+      client:      row.client     || '',
+      partner:     row.partner    || '',
+      location:    row.location   || '',
+      role:        row.role       || '',
+      status:      'Completed',
+      from:        row.from       || '',
+      to:          row.to         || '',
+      startDate:   row.startDate  || '',
+      endDate:     row.endDate    || '',
+      _originalPath: (row._path && row._key) ? row._path + '/' + row._key : (row._key || ''),
+      _completedAt: completedAt
+    };
+
+    // Write to history node
+    await set(ref(db, 'history/' + historyKey), historyRecord);
+
+    // Remove from original allocation path
     let fbPath = '';
     if (row._path && row._key) fbPath = row._path + '/' + row._key;
     else if (row._key) fbPath = row._key;
-    if (fbPath) {
-      await update(ref(db, fbPath), { status: 'Completed' });
-    }
+    if (fbPath) await remove(ref(db, fbPath));
+
   } catch(e) {
-    console.error('markCompleted error:', e);
+    console.error('markCompleted Firebase error:', e);
   }
 }
 window.markCompleted = markCompleted;
+
+// ── UNDO COMPLETED ────────────────────────────────────────────────────────────
+async function undoCompleted(key, path) {
+  const hist = getHistory();
+  const item = hist.find(h => h._key === key && h._path === path);
+  if (!item) return;
+
+  if (!isUndoAvailable(item._completedAt)) {
+    alert('Undo window has expired (2 days). This record remains in history.');
+    return;
+  }
+
+  // Restore to allData
+  const { _completedAt, ...restored } = item;
+  restored.status = 'Active';
+  allData.push(restored);
+
+  // Remove from local history
+  removeFromHistory(key, path);
+  updateStats();
+  render();
+  updateHistoryBadge();
+  renderHistoryPanel();
+
+  // Persist to Firebase: write back to original path, remove from history node
+  try {
+    const historyKey = key;
+    const originalPath = item._originalPath || ((path && key) ? path + '/' + key : key);
+
+    // Restore the record to its original allocation path
+    if (originalPath) {
+      const restoredRecord = {
+        article:   item.article   || '',
+        client:    item.client    || '',
+        partner:   item.partner   || '',
+        location:  item.location  || '',
+        role:      item.role      || '',
+        status:    'Active',
+        startDate: item.startDate || '',
+        endDate:   item.endDate   || ''
+      };
+      await set(ref(db, originalPath), restoredRecord);
+    }
+
+    // Remove from history node
+    await remove(ref(db, 'history/' + historyKey));
+
+  } catch(e) {
+    console.error('undoCompleted Firebase error:', e);
+  }
+}
+window.undoCompleted = undoCompleted;
+
+// ── HISTORY PANEL (drawer) ─────────────────────────────────────────────────
+function showHistoryComingSoon() {
+  const toast = document.getElementById('comingSoonToast');
+  if (!toast) return;
+  toast.classList.add('show');
+  clearTimeout(toast._hideTimer);
+  toast._hideTimer = setTimeout(() => toast.classList.remove('show'), 3000);
+}
+window.showHistoryComingSoon = showHistoryComingSoon;
+
+function openHistoryPanel() {
+  document.getElementById('historyOverlay').style.display = 'block';
+  document.getElementById('historyPanel').style.display = 'flex';
+  document.getElementById('historyPanel').style.flexDirection = 'column';
+  renderHistoryPanel();
+}
+
+function closeHistoryPanel() {
+  document.getElementById('historyOverlay').style.display = 'none';
+  document.getElementById('historyPanel').style.display = 'none';
+}
+window.openHistoryPanel = openHistoryPanel;
+window.closeHistoryPanel = closeHistoryPanel;
+
+function renderHistoryPanel() {
+  const hist = getHistory();
+  const body = document.getElementById('historyPanelBody');
+  if (!body) return;
+
+  if (hist.length === 0) {
+    body.innerHTML = `<div class="history-empty">
+      <div class="history-empty-icon">📋</div>
+      <div class="history-empty-text">No history yet</div>
+      <div class="history-empty-sub">Completed allocations will appear here</div>
+    </div>`;
+    return;
+  }
+
+  const sortedHist = [...hist].sort((a, b) => {
+    const ta = a._completedAt ? new Date(a._completedAt).getTime() : 0;
+    const tb = b._completedAt ? new Date(b._completedAt).getTime() : 0;
+    return tb - ta; // newest first
+  });
+
+  body.innerHTML = sortedHist.map(h => {
+    const canUndo = isUndoAvailable(h._completedAt);
+    const undoBtn = canUndo
+      ? `<button class="undo-btn" onclick="undoCompleted('${h._key}','${h._path}')">↩ Undo</button>`
+      : `<span class="undo-expired">Undo expired</span>`;
+
+    return `<div class="history-item">
+      <div class="history-item-left">
+        <div class="history-item-name">
+          <div class="avatar" style="${avatarStyle(h.article)};width:30px;height:30px;font-size:10px">${initials(h.article)}</div>
+          ${h.article || '—'}
+        </div>
+        <div class="history-item-client">
+          <span class="client-badge" style="font-size:11.5px;padding:3px 8px">🏢 ${h.client || '—'}</span>
+          ${h.location ? `<span style="font-size:11px;color:var(--indigo)">📍 ${h.location}</span>` : ''}
+        </div>
+        <div class="history-item-meta">
+          ${h.from ? `<span class="date-badge" style="font-size:10.5px;padding:2px 8px"><span class="date-from">📅 ${h.from}</span>${h.to ? `<span class="date-arrow">→</span><span class="date-to">${h.to}</span>` : ''}</span>` : ''}
+          ${h.role ? `<span class="role-tag" style="background:rgba(79,70,229,0.08);color:#4338ca;border:1px solid rgba(79,70,229,0.2);font-size:10px">${h.role}</span>` : ''}
+          ${h.partner ? `<span class="partner-chip" style="font-size:10.5px">⚖ ${h.partner}</span>` : ''}
+        </div>
+      </div>
+      <div class="history-item-right">
+        <span class="history-completed-badge">✅ Completed</span>
+        <span class="history-time-label">🕓 ${timeAgo(h._completedAt)}</span>
+        ${undoBtn}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── HISTORY NODE (inline section) ─────────────────────────────────────────
+function updateHistoryBadge() {
+  const hist = getHistory();
+  const badge = document.getElementById('historyHeaderBadge');
+  if (!badge) return;
+  if (hist.length > 0) {
+    badge.style.display = 'flex';
+    badge.textContent = hist.length > 99 ? '99+' : hist.length;
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 loadData();
+
+// Initialise history rendering after data loads (also called after loadData sets allData)
+setTimeout(() => { updateHistoryBadge(); }, 800);
 </script>
 </body>
 </html>
